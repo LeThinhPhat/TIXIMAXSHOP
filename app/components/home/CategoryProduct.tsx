@@ -68,23 +68,22 @@ const categories = [
     name: "Xem tất cả",
     icon: "🔍",
     count: "20k+ sản phẩm",
-    color: "bg-gray-950 hover:bg-gray-800",
-    iconBg: "bg-gray-800",
     special: true,
   },
 ];
 
 export default function CategoryProduct() {
   return (
-    <section className="max-w-7xl mx-auto px-4 py-6">
-      {/* Section header */}
-      <div className="flex items-center justify-between mb-5">
+    <section className="max-w-7xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 bg-orange-500 rounded-full" />
           <h2 className="text-xl font-black text-gray-950">
             Danh Mục Sản Phẩm
           </h2>
         </div>
+
         <Link
           href="#"
           className="text-sm font-semibold text-orange-500 hover:underline"
@@ -93,26 +92,50 @@ export default function CategoryProduct() {
         </Link>
       </div>
 
-      {/* Category grid */}
-      <div className="grid grid-cols-5 md:grid-cols-10 gap-3">
+      {/* Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-4">
         {categories.map((cat) => (
           <Link
             key={cat.name}
             href="#"
-            className={`${cat.color} rounded-xl p-3 flex flex-col items-center gap-2 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group`}
+            className={`
+              group rounded-2xl p-4 flex flex-col items-center text-center
+              transition-all duration-200
+              hover:-translate-y-1 hover:shadow-lg
+              ${
+                cat.special
+                  ? "bg-gray-950 hover:bg-gray-800"
+                  : `${cat.color} border border-gray-100`
+              }
+            `}
           >
+            {/* Icon */}
             <div
-              className={`${cat.iconBg} ${cat.special ? "bg-gray-700" : ""} w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm`}
+              className={`
+                w-14 h-14 rounded-2xl flex items-center justify-center
+                text-2xl shadow-sm mb-2
+                ${cat.special ? "bg-gray-800 text-white" : cat.iconBg}
+              `}
             >
               {cat.icon}
             </div>
+
+            {/* Name */}
             <span
-              className={`text-xs font-bold text-center leading-tight ${cat.special ? "text-white" : "text-gray-800"}`}
+              className={`
+                text-sm font-bold leading-tight
+                ${cat.special ? "text-white" : "text-gray-900"}
+              `}
             >
               {cat.name}
             </span>
+
+            {/* Count */}
             <span
-              className={`text-[10px] ${cat.special ? "text-gray-400" : "text-gray-500"} text-center`}
+              className={`
+                text-[11px] mt-0.5
+                ${cat.special ? "text-gray-400" : "text-gray-500"}
+              `}
             >
               {cat.count}
             </span>
