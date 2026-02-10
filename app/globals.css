@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ===================== Theme tokens ===================== */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* ===================== Root scale ===================== */
+:root {
+  /* Color */
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /*
+    🔥 GLOBAL SCALE
+    1rem = 18px (thay vì 16px)
+    → toàn bộ UI to hơn ~12%
+  */
+  font-size: 18px;
+}
+
+/* ===================== Dark mode ===================== */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +31,24 @@
   }
 }
 
+/* ===================== Body ===================== */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    var(--font-geist-sans),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  /* Modern readability */
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
