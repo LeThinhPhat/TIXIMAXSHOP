@@ -7,6 +7,7 @@ import FormWatchProduct from "./components/home/FormWatchProduct";
 import FormGlassProduct from "./components/home/FormGlassProduct";
 import FormShoseProduct from "./components/home/FormShoseProduct";
 import FormBadmintonProduct from "./components/home/FormBadmintonProduct";
+import Blog from "./components/home/Blog";
 export default function Home() {
   return (
     <>
@@ -31,6 +32,8 @@ export default function Home() {
       <FormShoseProduct />
       {/* All Products */}
       <ListProduct />
+      <div className="my-12 h-px w-full bg-black/80" />
+      <Blog />
     </>
   );
 }
