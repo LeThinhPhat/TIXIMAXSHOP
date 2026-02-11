@@ -22,7 +22,7 @@ const menus = [
     icon: IconBolt,
   },
   {
-    label: "Fado Mall",
+    label: "TIXIMAX Mall",
     href: "/mall",
     icon: IconBuildingStore,
   },
