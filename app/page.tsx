@@ -5,6 +5,8 @@ import BrandProduct from "./components/home/BrandProduct";
 import ListProduct from "./components/home/ListProduct";
 import FormWatchProduct from "./components/home/FormWatchProduct";
 import FormGlassProduct from "./components/home/FormGlassProduct";
+import FormShoseProduct from "./components/home/FormShoseProduct";
+import FormBadmintonProduct from "./components/home/FormBadmintonProduct";
 export default function Home() {
   return (
     <>
@@ -22,7 +24,11 @@ export default function Home() {
 
       <FormWatchProduct />
 
+      <FormBadmintonProduct />
+
       <FormGlassProduct />
+
+      <FormShoseProduct />
       {/* All Products */}
       <ListProduct />
     </>
