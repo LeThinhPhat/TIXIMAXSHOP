@@ -15,56 +15,56 @@ const brands = [
     slug: "samsung",
     image: "/brands/samsung.png",
     products: "380 sản phẩm",
-    gradient: "from-blue-50 to-blue-100",
-    border: "hover:border-blue-300",
+    gradient: "from-orange-50 to-orange-100",
+    border: "hover:border-orange-300",
   },
   {
     name: "Nike",
     slug: "nike",
     image: "/brands/nike.png",
     products: "520 sản phẩm",
-    gradient: "from-orange-50 to-orange-100",
-    border: "hover:border-orange-300",
+    gradient: "from-gray-50 to-gray-100",
+    border: "hover:border-gray-300",
   },
   {
     name: "Adidas",
     slug: "adidas",
     image: "/brands/adidas.png",
     products: "410 sản phẩm",
-    gradient: "from-neutral-50 to-gray-100",
-    border: "hover:border-gray-400",
+    gradient: "from-orange-50 to-orange-100",
+    border: "hover:border-orange-300",
   },
   {
     name: "Sony",
     slug: "sony",
     image: "/brands/sony.png",
     products: "190 sản phẩm",
-    gradient: "from-slate-50 to-slate-100",
-    border: "hover:border-slate-300",
+    gradient: "from-gray-50 to-gray-100",
+    border: "hover:border-gray-300",
   },
   {
     name: "Uniqlo",
     slug: "uniqlo",
     image: "/brands/uniqlo.png",
     products: "680 sản phẩm",
-    gradient: "from-red-50 to-red-100",
-    border: "hover:border-red-300",
+    gradient: "from-orange-50 to-orange-100",
+    border: "hover:border-orange-300",
   },
   {
     name: "LG",
     slug: "lg",
     image: "/brands/lg.png",
     products: "160 sản phẩm",
-    gradient: "from-purple-50 to-purple-100",
-    border: "hover:border-purple-300",
+    gradient: "from-gray-50 to-gray-100",
+    border: "hover:border-gray-300",
   },
   {
     name: "Dell",
     slug: "dell",
     image: "/brands/dell.png",
     products: "220 sản phẩm",
-    gradient: "from-indigo-50 to-indigo-100",
-    border: "hover:border-indigo-300",
+    gradient: "from-orange-50 to-orange-100",
+    border: "hover:border-orange-300",
   },
 ];
 
@@ -106,13 +106,13 @@ export default function BrandProduct() {
               flex flex-col items-center text-center
             `}
           >
-            {/* Logo */}
-            <div className="relative w-16 h-16 rounded-2xl bg-white shadow-md overflow-hidden group-hover:scale-110 transition-transform">
+            {/* Logo (to hơn) */}
+            <div className="relative w-20 h-20 rounded-2xl bg-white shadow-md overflow-hidden group-hover:scale-110 transition-transform">
               <Image
                 src={brand.image}
                 alt={brand.name}
                 fill
-                className="object-contain p-3"
+                className="object-contain p-4"
               />
             </div>
 
@@ -121,8 +121,10 @@ export default function BrandProduct() {
               {brand.name}
             </span>
 
-            {/* Products */}
-            <span className="mt-1 text-xs text-gray-500">{brand.products}</span>
+            {/* Products (màu cam) */}
+            <span className="mt-1 text-xs font-semibold text-orange-500">
+              {brand.products}
+            </span>
           </Link>
         ))}
       </div>
