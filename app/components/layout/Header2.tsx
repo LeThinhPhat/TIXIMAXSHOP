@@ -11,63 +11,47 @@ import {
 } from "@tabler/icons-react";
 
 const menus = [
-  {
-    label: "Danh mục",
-    href: "/categories",
-    icon: IconLayoutGrid,
-  },
-  {
-    label: "Săn deal Mỹ",
-    href: "/us-deals",
-    icon: IconBolt,
-  },
-  {
-    label: "TIXIMAX Mall",
-    href: "/mall",
-    icon: IconBuildingStore,
-  },
-  {
-    label: "Mã giảm giá",
-    href: "/coupons",
-    icon: IconTicket,
-  },
-  {
-    label: "Trợ lý mua sắm",
-    href: "/support",
-    icon: IconHeadset,
-  },
-  {
-    label: "Luxury Sales",
-    href: "/luxury",
-    icon: IconDiamond,
-  },
+  { label: "Danh mục", href: "/categories", icon: IconLayoutGrid },
+  { label: "Săn deal Mỹ", href: "/us-deals", icon: IconBolt },
+  { label: "TIXIMAX Mall", href: "/mall", icon: IconBuildingStore },
+  { label: "Mã giảm giá", href: "/coupons", icon: IconTicket },
+  { label: "Trợ lý mua sắm", href: "/support", icon: IconHeadset },
+  { label: "Luxury Sales", href: "/luxury", icon: IconDiamond },
 ];
 
 export default function Header2() {
   return (
-    <div className="w-full bg-orange-50 border-b border-orange-100">
-      <div className="max-w-7xl mx-auto px-4">
-        <nav className="flex items-center justify-center gap-10 h-12">
-          {menus.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="
-                  flex items-center gap-2
-                  text-sm font-medium text-gray-800
-                  hover:text-orange-600
-                  transition
-                "
-              >
-                <Icon size={18} stroke={1.8} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+    <>
+      <style>{`
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <div className="w-full bg-orange-50 border-b border-orange-100">
+        <div className="max-w-7xl mx-auto px-4">
+          <nav className="scroll-hide flex items-center gap-1 md:gap-10 h-12 overflow-x-auto md:justify-center">
+            {menus.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="
+                    flex-shrink-0 flex items-center gap-1.5
+                    px-3 md:px-0
+                    text-sm font-medium text-gray-800
+                    hover:text-orange-600
+                    transition
+                  "
+                >
+                  <Icon size={18} stroke={1.8} />
+                  <span className="whitespace-nowrap">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

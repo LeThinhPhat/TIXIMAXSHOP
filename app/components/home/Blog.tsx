@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -41,101 +44,182 @@ const otherPosts = [
   },
 ];
 
+/* ===================== SCROLL DOTS ===================== */
+
+function ScrollDots({ total, active }: { total: number; active: number }) {
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-5 md:hidden">
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          className="block rounded-full transition-all duration-300"
+          style={{
+            width: i === active ? 20 : 6,
+            height: 6,
+            background: i === active ? "#111" : "#e5e7eb",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ================== Component ================== */
 
 export default function Blog() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const cardWidth = el.scrollWidth / topPosts.length;
+      const index = Math.round(el.scrollLeft / cardWidth);
+      setActiveIndex(Math.min(index, topPosts.length - 1));
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section className="max-w-7xl mx-auto px-4 py-14">
-      {/* ===== BÀI VIẾT NỔI BẬT ===== */}
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Bài viết nổi bật
-      </h2>
+    <>
+      <style>{`
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {topPosts.map((post, index) => (
-          <div key={index} className="relative h-56 rounded-xl overflow-hidden">
-            <Image
-              src={post.image}
-              alt="Bài viết nổi bật"
-              fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
-            />
-          </div>
-        ))}
-      </div>
+      <section className="max-w-7xl mx-auto px-4 py-14">
+        {/* ===== BÀI VIẾT NỔI BẬT ===== */}
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          Bài viết nổi bật
+        </h2>
 
-      {/* ===== ĐƯỜNG KẺ NGANG 4px ===== */}
-      <div className="my-12 h-[4px] bg-black" />
-
-      {/* ===== NỘI DUNG CHÍNH ===== */}
-      <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* ===== ĐƯỜNG KẺ DỌC 4px ===== */}
-        <div className="hidden lg:block absolute top-0 bottom-0 left-2/3 w-[2px] bg-black" />
-
-        {/* ===== BÀI VIẾT MỚI NHẤT ===== */}
-        <div className="lg:col-span-2 pr-10">
-          <h3 className="text-lg font-semibold mb-5">Bài viết mới nhất</h3>
-
-          <div className="rounded-xl overflow-hidden">
-            <div className="relative h-80">
-              <Image
-                src={featuredPost.image}
-                alt={featuredPost.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-
-            <div className="p-6">
-              <p className="text-xs text-gray-600 mb-2 uppercase tracking-wide">
-                {featuredPost.date}
-              </p>
-
-              <h4 className="text-xl font-semibold leading-snug mb-4">
-                {featuredPost.title}
-              </h4>
-
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {featuredPost.excerpt}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ===== BÀI VIẾT KHÁC ===== */}
-        <div className="pl-10">
-          <h3 className="text-lg font-semibold mb-5">Bài viết khác</h3>
-
-          <div className="space-y-6">
-            {otherPosts.map((post, index) => (
-              <div key={index}>
-                <Link href="#" className="flex gap-4 group">
-                  <div className="relative w-28 h-20 rounded-md overflow-hidden">
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-medium leading-snug group-hover:text-orange-500 line-clamp-2">
-                      {post.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mt-1">{post.date}</p>
-                  </div>
-                </Link>
-
-                {/* ===== ĐƯỜNG KẺ PHÂN BÀI VIẾT 4px ===== */}
-                {index !== otherPosts.length - 1 && (
-                  <div className="mt-5 h-[2px] bg-black" />
-                )}
+        {/* MOBILE: Horizontal Scroll */}
+        <div className="md:hidden">
+          <div
+            ref={scrollRef}
+            className="scroll-hide flex gap-4 overflow-x-auto pb-2"
+            style={{
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              paddingRight: 32,
+            }}
+          >
+            {topPosts.map((post, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 relative h-52 rounded-xl overflow-hidden"
+                style={{
+                  width: "78vw",
+                  maxWidth: 320,
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <Image
+                  src={post.image}
+                  alt="Bài viết nổi bật"
+                  fill
+                  className="object-cover transition-transform duration-300 hover:scale-105"
+                />
               </div>
             ))}
           </div>
+
+          <ScrollDots total={topPosts.length} active={activeIndex} />
         </div>
-      </div>
-    </section>
+
+        {/* DESKTOP: Grid 3 cột */}
+        <div className="hidden md:grid grid-cols-3 gap-6">
+          {topPosts.map((post, index) => (
+            <div
+              key={index}
+              className="relative h-56 rounded-xl overflow-hidden"
+            >
+              <Image
+                src={post.image}
+                alt="Bài viết nổi bật"
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* ===== ĐƯỜNG KẺ NGANG 4px ===== */}
+        <div className="my-12 h-[4px] bg-black" />
+
+        {/* ===== NỘI DUNG CHÍNH ===== */}
+        <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* ===== ĐƯỜNG KẺ DỌC 4px ===== */}
+          <div className="hidden lg:block absolute top-0 bottom-0 left-2/3 w-[2px] bg-black" />
+
+          {/* ===== BÀI VIẾT MỚI NHẤT ===== */}
+          <div className="lg:col-span-2 pr-10">
+            <h3 className="text-lg font-semibold mb-5">Bài viết mới nhất</h3>
+
+            <div className="rounded-xl overflow-hidden">
+              <div className="relative h-80">
+                <Image
+                  src={featuredPost.image}
+                  alt={featuredPost.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="p-6">
+                <p className="text-xs text-gray-600 mb-2 uppercase tracking-wide">
+                  {featuredPost.date}
+                </p>
+
+                <h4 className="text-xl font-semibold leading-snug mb-4">
+                  {featuredPost.title}
+                </h4>
+
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {featuredPost.excerpt}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== BÀI VIẾT KHÁC ===== */}
+          <div className="pl-10">
+            <h3 className="text-lg font-semibold mb-5">Bài viết khác</h3>
+
+            <div className="space-y-6">
+              {otherPosts.map((post, index) => (
+                <div key={index}>
+                  <Link href="#" className="flex gap-4 group">
+                    <div className="relative w-28 h-20 rounded-md overflow-hidden">
+                      <Image
+                        src={post.image}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium leading-snug group-hover:text-orange-500 line-clamp-2">
+                        {post.title}
+                      </h4>
+                      <p className="text-xs text-gray-600 mt-1">{post.date}</p>
+                    </div>
+                  </Link>
+
+                  {index !== otherPosts.length - 1 && (
+                    <div className="mt-5 h-[2px] bg-black" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

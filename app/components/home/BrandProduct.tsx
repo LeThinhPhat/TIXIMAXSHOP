@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRef, useState, useEffect } from "react";
 
 const brands = [
   {
@@ -68,66 +71,142 @@ const brands = [
   },
 ];
 
-export default function BrandProduct() {
+/* ===================== SCROLL DOTS ===================== */
+
+function ScrollDots({ total, active }: { total: number; active: number }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 py-10">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-6 bg-orange-500 rounded-full" />
-          <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-            Featured Brands
-          </h2>
+    <div className="flex items-center justify-center gap-1.5 mt-5 md:hidden">
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          className="block rounded-full transition-all duration-300"
+          style={{
+            width: i === active ? 20 : 6,
+            height: 6,
+            background: i === active ? "#f97316" : "#e5e7eb",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ===================== BRAND CARD ===================== */
+
+function BrandCard({ brand }: { brand: (typeof brands)[0] }) {
+  return (
+    <Link
+      href={`/brands/${brand.slug}`}
+      className={`
+        group
+        bg-gradient-to-br ${brand.gradient}
+        rounded-2xl p-4
+        border border-transparent
+        ${brand.border}
+        transition-all duration-200
+        hover:shadow-md hover:-translate-y-1
+        flex flex-col items-center text-center
+        focus:outline-none
+      `}
+    >
+      <div className="relative w-16 h-16 rounded-xl bg-white shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
+        <Image
+          src={brand.image}
+          alt={brand.name}
+          fill
+          className="object-contain p-3"
+        />
+      </div>
+      <span className="mt-3 text-sm font-medium text-gray-900 leading-snug">
+        {brand.name}
+      </span>
+      <span className="mt-0.5 text-xs text-gray-500 tracking-wide">
+        {brand.products}
+      </span>
+    </Link>
+  );
+}
+
+/* ===================== MAIN ===================== */
+
+export default function BrandProduct() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const cardWidth = el.scrollWidth / brands.length;
+      const index = Math.round(el.scrollLeft / cardWidth);
+      setActiveIndex(Math.min(index, brands.length - 1));
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      <style>{`
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <section className="max-w-7xl mx-auto px-4 py-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 bg-orange-500 rounded-full" />
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+              Featured Brands
+            </h2>
+          </div>
+          <Link
+            href="/brands"
+            className="text-sm font-medium text-orange-500 hover:underline"
+          >
+            View all →
+          </Link>
         </div>
 
-        <Link
-          href="/brands"
-          className="text-sm font-medium text-orange-500 hover:underline"
-        >
-          View all →
-        </Link>
-      </div>
-
-      {/* Brand grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-5">
-        {brands.map((brand) => (
-          <Link
-            key={brand.slug}
-            href={`/brands/${brand.slug}`}
-            className={`
-              group
-              bg-gradient-to-br ${brand.gradient}
-              rounded-2xl
-              p-4
-              border border-transparent
-              ${brand.border}
-              transition-all duration-200
-              hover:shadow-md hover:-translate-y-1
-              flex flex-col items-center text-center
-            `}
+        {/* ===== MOBILE: Horizontal Scroll ===== */}
+        <div className="md:hidden">
+          <div
+            ref={scrollRef}
+            className="scroll-hide flex gap-4 overflow-x-auto pb-2"
+            style={{
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              paddingRight: 32,
+            }}
           >
-            {/* Logo */}
-            <div className="relative w-16 h-16 rounded-xl bg-white shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
-              <Image
-                src={brand.image}
-                alt={brand.name}
-                fill
-                className="object-contain p-3"
-              />
-            </div>
+            {brands.map((brand) => (
+              <div
+                key={brand.slug}
+                className="flex-shrink-0"
+                style={{
+                  width: "28vw",
+                  maxWidth: 120,
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <BrandCard brand={brand} />
+              </div>
+            ))}
+          </div>
 
-            {/* Name */}
-            <span className="mt-3 text-sm font-medium text-gray-900 leading-snug">
-              {brand.name}
-            </span>
+          <ScrollDots total={brands.length} active={activeIndex} />
+        </div>
 
-            {/* Products */}
-            <span className="mt-0.5 text-xs text-gray-500 tracking-wide">
-              {brand.products}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
+        {/* ===== DESKTOP: Grid ===== */}
+        <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 gap-5">
+          {brands.map((brand) => (
+            <BrandCard key={brand.slug} brand={brand} />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
