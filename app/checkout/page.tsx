@@ -166,6 +166,8 @@ function Field({
 }
 
 /* ══ Order summary (collapsible on mobile) ══ */
+import type { CartItem } from "@/store/useCartStore";
+
 function OrderSummary({
   items,
   subtotal,
@@ -176,9 +178,7 @@ function OrderSummary({
   collapsed,
   onToggle,
 }: {
-  items: ReturnType<typeof useCartStore>["items"] extends () => infer R
-    ? never
-    : any[];
+  items: CartItem[];
   subtotal: number;
   discount: number;
   shippingFee: number;
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
 
   const [discount] = useState(0);
 
-  const items = useCartStore((s) => s.items);
+  const items = useCartStore((s) => s.items) as CartItem[];
   const totalPrice = useCartStore((s) => s.totalPrice);
   const clearCart = useCartStore((s) => s.clearCart);
 
