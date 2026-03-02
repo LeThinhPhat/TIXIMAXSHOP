@@ -394,7 +394,6 @@ export default async function BlogDetailPage({ params }: Props) {
 
         {/* ══ ZONE 3: EXCERPT ══ */}
         <section className="zone-excerpt anim anim-2">
-          <span className="quote-mark">"</span>
           <p>{post.excerpt}</p>
         </section>
 
