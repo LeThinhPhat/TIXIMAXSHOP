@@ -166,7 +166,7 @@ function Field({
 }
 
 /* ══ Order summary (collapsible on mobile) ══ */
-import type { CartItem } from "@/store/useCartStore";
+import type { CartItem } from "@/app/store/useCartStore";
 
 function OrderSummary({
   items,
