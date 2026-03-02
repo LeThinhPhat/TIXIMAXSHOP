@@ -3,61 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-/* ===================== TABS ===================== */
-
-const tabs = [
-  { key: "men", label: "Giày nam" },
-  { key: "women", label: "Giày nữ" },
-  { key: "unisex", label: "Giày Unisex" },
-  { key: "nike", label: "Giày Nike" },
-  { key: "adidas", label: "Giày Adidas" },
-];
-
-/* ===================== DATA ===================== */
-
-const shoes = [
-  {
-    id: 1,
-    name: "Nike Air Force 1 '07",
-    image: "/shoes/nike-air-force-1.png",
-    price: "2.790.000 đ",
-    oldPrice: "3.290.000 đ",
-    discount: "-15%",
-  },
-  {
-    id: 2,
-    name: "Adidas Ultraboost",
-    image: "/shoes/adidas-ultraboost.png",
-    price: "3.490.000 đ",
-    oldPrice: "3.990.000 đ",
-    discount: "-12%",
-  },
-  {
-    id: 3,
-    name: "Air Jordan 1 Low",
-    image: "/shoes/jordan-1-low.png",
-    price: "3.190.000 đ",
-    oldPrice: "3.790.000 đ",
-    discount: "-16%",
-  },
-  {
-    id: 4,
-    name: "Adidas Samba OG",
-    image: "/shoes/adidas-samba.png",
-    price: "2.690.000 đ",
-    oldPrice: "3.090.000 đ",
-    discount: "-13%",
-  },
-  {
-    id: 5,
-    name: "Nike Dunk Low",
-    image: "/shoes/nike-dunk-low.png",
-    price: "3.290.000 đ",
-    oldPrice: "3.890.000 đ",
-    discount: "-15%",
-  },
-];
+import { shoes, shoeTabs, toSlug, type Shoe } from "@/app/data/shoes";
 
 /* ===================== SCROLL DOTS ===================== */
 
@@ -81,9 +27,12 @@ function ScrollDots({ total, active }: { total: number; active: number }) {
 
 /* ===================== SHOE CARD ===================== */
 
-function ShoeCard({ item }: { item: (typeof shoes)[0] }) {
+function ShoeCard({ item }: { item: Shoe }) {
   return (
-    <Link href="#" className="group block focus:outline-none">
+    <Link
+      href={`/products/${toSlug(item.name)}`}
+      className="group block focus:outline-none"
+    >
       <div className="relative aspect-[3/4]">
         <Image
           src={item.image}
@@ -118,19 +67,27 @@ export default function FormShoseProduct() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const filtered = shoes.filter((s) => s.tab.includes(activeTab));
+
+  // Reset scroll khi đổi tab
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+    setActiveIndex(0);
+  }, [activeTab]);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
     const handleScroll = () => {
-      const cardWidth = el.scrollWidth / shoes.length;
+      const cardWidth = el.scrollWidth / Math.max(filtered.length, 1);
       const index = Math.round(el.scrollLeft / cardWidth);
-      setActiveIndex(Math.min(index, shoes.length - 1));
+      setActiveIndex(Math.min(index, filtered.length - 1));
     };
 
     el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [filtered.length]);
 
   return (
     <>
@@ -143,7 +100,7 @@ export default function FormShoseProduct() {
         {/* ===== Tabs + View all ===== */}
         <div className="flex items-center justify-between mb-8 gap-4">
           <div className="scroll-hide flex items-center gap-6 md:gap-8 overflow-x-auto flex-1">
-            {tabs.map((tab) => (
+            {shoeTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
@@ -160,9 +117,8 @@ export default function FormShoseProduct() {
           </div>
 
           <Link
-            href="#"
-            className="flex-shrink-0 text-sm font-semibold px-4 py-1.5 border rounded-full
-                       hover:bg-black hover:text-white transition"
+            href="/products"
+            className="flex-shrink-0 text-sm font-semibold px-4 py-1.5 border rounded-full hover:bg-black hover:text-white transition"
           >
             Xem tất cả
           </Link>
@@ -170,38 +126,50 @@ export default function FormShoseProduct() {
 
         {/* ===== MOBILE: Horizontal Scroll ===== */}
         <div className="md:hidden">
-          <div
-            ref={scrollRef}
-            className="scroll-hide flex gap-5 overflow-x-auto pb-2"
-            style={{
-              scrollSnapType: "x mandatory",
-              WebkitOverflowScrolling: "touch",
-              paddingRight: 32,
-            }}
-          >
-            {shoes.map((item) => (
+          {filtered.length === 0 ? (
+            <p className="text-center text-gray-400 py-10 text-sm">
+              Không có sản phẩm phù hợp
+            </p>
+          ) : (
+            <>
               <div
-                key={item.id}
-                className="flex-shrink-0"
+                ref={scrollRef}
+                className="scroll-hide flex gap-5 overflow-x-auto pb-2"
                 style={{
-                  width: "60vw",
-                  maxWidth: 220,
-                  scrollSnapAlign: "start",
+                  scrollSnapType: "x mandatory",
+                  WebkitOverflowScrolling: "touch",
+                  paddingRight: 32,
                 }}
               >
-                <ShoeCard item={item} />
+                {filtered.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex-shrink-0"
+                    style={{
+                      width: "60vw",
+                      maxWidth: 220,
+                      scrollSnapAlign: "start",
+                    }}
+                  >
+                    <ShoeCard item={item} />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <ScrollDots total={shoes.length} active={activeIndex} />
+              <ScrollDots total={filtered.length} active={activeIndex} />
+            </>
+          )}
         </div>
 
         {/* ===== DESKTOP: Grid ===== */}
         <div className="hidden md:grid grid-cols-5 gap-8">
-          {shoes.map((item) => (
-            <ShoeCard key={item.id} item={item} />
-          ))}
+          {filtered.length === 0 ? (
+            <p className="col-span-5 text-center text-gray-400 py-10 text-sm">
+              Không có sản phẩm phù hợp
+            </p>
+          ) : (
+            filtered.map((item) => <ShoeCard key={item.id} item={item} />)
+          )}
         </div>
       </section>
     </>

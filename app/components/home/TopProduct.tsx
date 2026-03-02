@@ -3,76 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
-
-/* ===================== DATA ===================== */
-
-const topProducts = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro Max 256GB",
-    image: "/products/iphone-15-pro-max.jpg",
-    price: "28.990.000đ",
-    oldPrice: "32.990.000đ",
-    discount: "-12%",
-    rating: 4.9,
-    sold: "2.3k",
-    category: "Điện thoại",
-    badge: "Best seller",
-    badgeColor: "bg-orange-500",
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy S25 Ultra",
-    image: "/products/samsung-s25-ultra.jpg",
-    price: "26.490.000đ",
-    oldPrice: "29.990.000đ",
-    discount: "-12%",
-    rating: 4.8,
-    sold: "1.8k",
-    category: "Điện thoại",
-    badge: "Hot",
-    badgeColor: "bg-red-500",
-  },
-  {
-    id: 3,
-    name: "MacBook Air M3 15-inch",
-    image: "/products/macbook-air-m3.jpg",
-    price: "31.990.000đ",
-    oldPrice: "35.990.000đ",
-    discount: "-11%",
-    rating: 4.9,
-    sold: "960",
-    category: "Laptop",
-    badge: "Top rated",
-    badgeColor: "bg-blue-500",
-  },
-  {
-    id: 4,
-    name: "Uniqlo Ultra Light Down Jacket",
-    image: "/products/uniqlo-jacket.jpg",
-    price: "890.000đ",
-    oldPrice: "1.290.000đ",
-    discount: "-31%",
-    rating: 4.7,
-    sold: "5.6k",
-    category: "Fashion",
-    badge: "Big sale",
-    badgeColor: "bg-pink-500",
-  },
-  {
-    id: 5,
-    name: "Nike Air Max 270 React",
-    image: "/products/nike-air-max-270.jpg",
-    price: "2.490.000đ",
-    oldPrice: "3.200.000đ",
-    discount: "-22%",
-    rating: 4.8,
-    sold: "3.1k",
-    category: "Sports",
-    badge: "Favorite",
-    badgeColor: "bg-emerald-500",
-  },
-];
+import { topProducts, toSlug, type TopProduct } from "@/app/data/topProducts";
 
 /* ===================== STAR ===================== */
 
@@ -98,10 +29,10 @@ function StarRating({ rating }: { rating: number }) {
 
 /* ===================== PRODUCT CARD ===================== */
 
-function ProductCard({ product }: { product: (typeof topProducts)[0] }) {
+function ProductCard({ product }: { product: TopProduct }) {
   return (
     <Link
-      href="#"
+      href={`/products/${toSlug(product.name)}`}
       className="group bg-white border border-gray-100 rounded-2xl overflow-hidden
                  hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300
                  focus:outline-none"
@@ -175,21 +106,19 @@ function ScrollDots({ total, active }: { total: number; active: number }) {
   );
 }
 
-/* ===================== MAIN COMPONENT ===================== */
+/* ===================== MAIN ===================== */
 
 export default function TopProduct() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Track which card is most in view
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
     const handleScroll = () => {
-      const scrollLeft = el.scrollLeft;
       const cardWidth = el.scrollWidth / topProducts.length;
-      const index = Math.round(scrollLeft / cardWidth);
+      const index = Math.round(el.scrollLeft / cardWidth);
       setActiveIndex(Math.min(index, topProducts.length - 1));
     };
 
@@ -217,7 +146,7 @@ export default function TopProduct() {
             </span>
           </div>
           <Link
-            href="#"
+            href="/products"
             className="text-sm font-medium text-orange-500 hover:underline"
           >
             Xem tất cả →
@@ -232,7 +161,6 @@ export default function TopProduct() {
             style={{
               scrollSnapType: "x mandatory",
               WebkitOverflowScrolling: "touch",
-              // peek next card on the right
               paddingRight: 32,
             }}
           >
@@ -251,7 +179,6 @@ export default function TopProduct() {
             ))}
           </div>
 
-          {/* Scroll progress dots */}
           <ScrollDots total={topProducts.length} active={activeIndex} />
         </div>
 

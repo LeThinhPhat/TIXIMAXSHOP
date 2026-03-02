@@ -3,52 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
+import { watches, watchTabs, toSlug, type Watch } from "@/app/data/watches";
 
-const tabs = [
-  "Đồng hồ nam",
-  "Đồng hồ nữ",
-  "Đồng hồ Unisex",
-  "Đồng hồ Tissot",
-  "Đồng hồ Hamilton",
-];
-
-const products = [
-  {
-    id: 1,
-    name: "Hampton Black Dial Men's Gift Set AX7101",
-    price: "4.779.487 ₫",
-    discount: "-33%",
-    image: "/watches/watch-1.png",
-  },
-  {
-    id: 2,
-    name: "Đồng hồ nam Maquina Quartz mặt số xanh 96B407",
-    price: "9.400.874 ₫",
-    discount: "-48%",
-    image: "/watches/watch-2.png",
-  },
-  {
-    id: 3,
-    name: "Signature Blue Dial Brown Leather Men's Watch SKW6355",
-    price: "2.416.854 ₫",
-    discount: "-43%",
-    image: "/watches/watch-3.png",
-  },
-  {
-    id: 4,
-    name: "Đồng hồ nam Quartz mặt số đen BI5052-59E",
-    price: "3.866.322 ₫",
-    discount: "-43%",
-    image: "/watches/watch-4.png",
-  },
-  {
-    id: 5,
-    name: "Neutra Chronograph Quartz Black Dial Men's Watch FS6093",
-    price: "3.680.038 ₫",
-    discount: "-38%",
-    image: "/watches/watch-5.png",
-  },
-];
+/* ===================== SCROLL DOTS ===================== */
 
 function ScrollDots({ total, active }: { total: number; active: number }) {
   return (
@@ -68,10 +25,12 @@ function ScrollDots({ total, active }: { total: number; active: number }) {
   );
 }
 
-function WatchCard({ product }: { product: (typeof products)[0] }) {
+/* ===================== WATCH CARD ===================== */
+
+function WatchCard({ product }: { product: Watch }) {
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/products/${toSlug(product.name)}`}
       className="group block focus:outline-none"
     >
       <div className="relative aspect-[3/4]">
@@ -95,78 +54,116 @@ function WatchCard({ product }: { product: (typeof products)[0] }) {
   );
 }
 
+/* ===================== MAIN ===================== */
+
 export default function FormWatchProduct() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState("men");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const filtered = watches.filter((w) => w.tab.includes(activeTab));
+
+  // Reset scroll khi đổi tab
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+    setActiveIndex(0);
+  }, [activeTab]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+
     const handleScroll = () => {
-      const cardWidth = el.scrollWidth / products.length;
-      setActiveIndex(
-        Math.min(Math.round(el.scrollLeft / cardWidth), products.length - 1),
-      );
+      const cardWidth = el.scrollWidth / Math.max(filtered.length, 1);
+      const index = Math.round(el.scrollLeft / cardWidth);
+      setActiveIndex(Math.min(index, filtered.length - 1));
     };
+
     el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [filtered.length]);
 
   return (
     <>
-      <style>{`.scroll-hide::-webkit-scrollbar{display:none}.scroll-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
+      <style>{`
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
       <section className="max-w-7xl mx-auto px-4 py-12">
+        {/* ===== Tabs + View all ===== */}
         <div className="flex items-center justify-between mb-10 gap-4">
           <div className="scroll-hide flex items-center gap-6 md:gap-10 overflow-x-auto flex-1">
-            {tabs.map((tab, index) => (
+            {watchTabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(index)}
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
                 className={`flex-shrink-0 text-xs font-semibold uppercase tracking-wide pb-2 border-b-2 transition-colors
-                  ${activeTab === index ? "border-black text-black" : "border-transparent text-gray-500 hover:text-black"}`}
+                  ${
+                    activeTab === tab.key
+                      ? "border-black text-black"
+                      : "border-transparent text-gray-500 hover:text-black"
+                  }`}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
+
           <Link
-            href="#"
+            href="/products"
             className="flex-shrink-0 text-xs font-semibold uppercase tracking-wide px-5 py-2 border border-black rounded-full hover:bg-black hover:text-white transition"
           >
             Xem tất cả
           </Link>
         </div>
+
+        {/* ===== MOBILE: Horizontal Scroll ===== */}
         <div className="md:hidden">
-          <div
-            ref={scrollRef}
-            className="scroll-hide flex gap-5 overflow-x-auto pb-2"
-            style={{
-              scrollSnapType: "x mandatory",
-              WebkitOverflowScrolling: "touch",
-              paddingRight: 32,
-            }}
-          >
-            {products.map((p) => (
+          {filtered.length === 0 ? (
+            <p className="text-center text-gray-400 py-10 text-sm">
+              Không có sản phẩm phù hợp
+            </p>
+          ) : (
+            <>
               <div
-                key={p.id}
-                className="flex-shrink-0"
+                ref={scrollRef}
+                className="scroll-hide flex gap-5 overflow-x-auto pb-2"
                 style={{
-                  width: "60vw",
-                  maxWidth: 220,
-                  scrollSnapAlign: "start",
+                  scrollSnapType: "x mandatory",
+                  WebkitOverflowScrolling: "touch",
+                  paddingRight: 32,
                 }}
               >
-                <WatchCard product={p} />
+                {filtered.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex-shrink-0"
+                    style={{
+                      width: "60vw",
+                      maxWidth: 220,
+                      scrollSnapAlign: "start",
+                    }}
+                  >
+                    <WatchCard product={p} />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <ScrollDots total={products.length} active={activeIndex} />
+
+              <ScrollDots total={filtered.length} active={activeIndex} />
+            </>
+          )}
         </div>
+
+        {/* ===== DESKTOP: Grid ===== */}
         <div className="hidden md:grid grid-cols-5 gap-x-8 gap-y-12">
-          {products.map((p) => (
-            <WatchCard key={p.id} product={p} />
-          ))}
+          {filtered.length === 0 ? (
+            <p className="col-span-5 text-center text-gray-400 py-10 text-sm">
+              Không có sản phẩm phù hợp
+            </p>
+          ) : (
+            filtered.map((p) => <WatchCard key={p.id} product={p} />)
+          )}
         </div>
       </section>
     </>

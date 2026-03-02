@@ -3,82 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-/* ================= DATA ================= */
-
-const countries = ["Tất cả", "Mỹ", "Nhật", "Hàn", "Indo"];
-
-const categories = [
-  "Tất cả",
-  "Điện tử",
-  "Thời trang",
-  "Nhà cửa",
-  "Làm đẹp",
-  "Thể thao",
-];
-
-const products = [
-  {
-    id: 1,
-    name: "Sony WH-1000XM5 Noise Cancelling Headphones",
-    price: "6.490.000đ",
-    oldPrice: "8.990.000đ",
-    sold: "1.2k",
-    category: "Điện tử",
-    country: "Nhật",
-    image: "/image/sony-xm5.jpg",
-  },
-  {
-    id: 2,
-    name: "Korean Vintage Floral Dress",
-    price: "345.000đ",
-    oldPrice: "490.000đ",
-    sold: "3.4k",
-    category: "Thời trang",
-    country: "Hàn",
-    image: "/image/dress-korea.jpg",
-  },
-  {
-    id: 3,
-    name: "Philips HR2041 Blender",
-    price: "890.000đ",
-    oldPrice: "1.190.000đ",
-    sold: "680",
-    category: "Nhà cửa",
-    country: "Mỹ",
-    image: "/image/blender-philips.jpg",
-  },
-  {
-    id: 4,
-    name: "The Ordinary Vitamin C Serum",
-    price: "290.000đ",
-    oldPrice: "390.000đ",
-    sold: "8.9k",
-    category: "Làm đẹp",
-    country: "Mỹ",
-    image: "/image/serum-ordinary.jpg",
-  },
-  {
-    id: 5,
-    name: "Asics Gel-Nimbus 25 Running Shoes",
-    price: "3.290.000đ",
-    oldPrice: "4.200.000đ",
-    sold: "450",
-    category: "Thể thao",
-    country: "Nhật",
-    image: "/image/asics-nimbus.jpg",
-  },
-  {
-    id: 6,
-    name: "Smart LED Desk Lamp",
-    price: "490.000đ",
-    oldPrice: "690.000đ",
-    sold: "2.3k",
-    category: "Nhà cửa",
-    country: "Indo",
-    image: "/image/led-lamp.jpg",
-  },
-];
+import {
+  products,
+  countries,
+  categories,
+  toSlug,
+  type Product,
+} from "@/app/data/products";
 
 /* ===================== SCROLL DOTS ===================== */
 
@@ -102,10 +33,10 @@ function ScrollDots({ total, active }: { total: number; active: number }) {
 
 /* ===================== PRODUCT CARD ===================== */
 
-function ProductCard({ p }: { p: (typeof products)[0] }) {
+function ProductCard({ p }: { p: Product }) {
   return (
     <Link
-      href="#"
+      href={`/products/${toSlug(p.name)}`}
       className="group bg-white rounded-xl border border-gray-100 hover:shadow-lg transition block focus:outline-none"
     >
       <div className="relative aspect-square bg-gray-50 rounded-t-xl overflow-hidden">
@@ -156,7 +87,6 @@ export default function ListProduct() {
     return okCountry && okCategory;
   });
 
-  // Reset scroll position & dot when filter changes
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollLeft = 0;
     setActiveIndex(0);

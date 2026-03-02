@@ -2,9 +2,13 @@ export type BlogPost = {
   slug: string;
   title: string;
   date: string;
+  isoDate: string; // ISO 8601 — dùng cho <time dateTime> và JSON-LD
   image: string;
   excerpt: string;
   content: string;
+  tags?: string[]; // dùng cho keywords meta và JSON-LD
+  author?: string; // dùng cho Open Graph và JSON-LD
+  twitterHandle?: string; // dùng cho Twitter Card
 };
 
 export const allPosts: BlogPost[] = [
@@ -12,9 +16,12 @@ export const allPosts: BlogPost[] = [
     slug: "huong-dan-tao-muc-luc",
     title: "Hướng dẫn tạo mục lục cho bài viết dài",
     date: "28 Tháng 6, 2022",
+    isoDate: "2022-06-28T00:00:00+07:00",
     image: "/blog/featured.jpg",
     excerpt:
       "Mục lục giúp bài viết trở nên rõ ràng, dễ theo dõi hơn và cải thiện trải nghiệm người đọc.",
+    tags: ["mục lục", "SEO", "viết blog", "nội dung"],
+    author: "Ban Biên Tập",
     content: `
 Mục lục là một trong những yếu tố quan trọng giúp người đọc dễ dàng điều hướng trong các bài viết dài. Khi bài viết có cấu trúc rõ ràng với mục lục, người đọc có thể nhanh chóng tìm đến phần thông tin họ cần mà không phải cuộn qua toàn bộ nội dung.
 
@@ -51,9 +58,12 @@ Hãy đảm bảo các tiêu đề trong mục lục chứa từ khóa tự nhi�
     slug: "giai-thuong-sach-quoc-gia-24-tac-pham",
     title: "24 tác phẩm xuất sắc được vinh danh tại Giải thưởng Sách Quốc gia",
     date: "26 Tháng 11, 2021",
+    isoDate: "2021-11-26T00:00:00+07:00",
     image: "/blog/post-01.jpg",
     excerpt:
       "Lễ trao Giải thưởng Sách Quốc gia lần thứ tư ghi nhận 24 tác phẩm xuất sắc trên nhiều lĩnh vực.",
+    tags: ["giải thưởng sách", "sách quốc gia", "văn học", "xuất bản"],
+    author: "Ban Biên Tập",
     content: `
 Giải thưởng Sách Quốc gia lần thứ tư vừa diễn ra trang trọng tại Hà Nội, vinh danh 24 tác phẩm xuất sắc trên nhiều lĩnh vực từ khoa học xã hội, văn học đến khoa học kỹ thuật.
 
@@ -83,9 +93,12 @@ Ban tổ chức kỳ vọng giải thưởng sẽ tiếp tục trở thành kim 
     title:
       "Khuyến khích doanh nhân viết sách để lan tỏa tri thức và kinh nghiệm",
     date: "25 Tháng 11, 2021",
+    isoDate: "2021-11-25T00:00:00+07:00",
     image: "/blog/post-02.jpg",
     excerpt:
       "Nhiều doanh nhân thành đạt đang được khuyến khích chia sẻ hành trình kinh doanh qua những trang sách.",
+    tags: ["doanh nhân", "viết sách", "thương hiệu cá nhân", "kinh doanh"],
+    author: "Ban Biên Tập",
     content: `
 Trong bối cảnh kinh tế số phát triển mạnh mẽ, việc các doanh nhân chia sẻ kinh nghiệm qua sách ngày càng được coi trọng. Đây không chỉ là cách lưu giữ tri thức mà còn là công cụ xây dựng thương hiệu cá nhân hiệu quả.
 
@@ -108,9 +121,12 @@ Nhiều doanh nhân sau khi xuất bản sách đã ghi nhận sự gia tăng đ
     slug: "bao-ve-chu-quyen-khong-gian-mang",
     title: "Nhận thức mới về bảo vệ chủ quyền quốc gia trên không gian mạng",
     date: "25 Tháng 11, 2021",
+    isoDate: "2021-11-25T06:00:00+07:00",
     image: "/blog/post-03.jpg",
     excerpt:
       "An ninh mạng đang trở thành một trong những ưu tiên hàng đầu trong chiến lược bảo vệ chủ quyền quốc gia.",
+    tags: ["an ninh mạng", "chủ quyền số", "không gian mạng", "Việt Nam"],
+    author: "Ban Biên Tập",
     content: `
 Không gian mạng đã trở thành chiến trường mới trong thế kỷ 21. Các quốc gia trên thế giới đang gấp rút xây dựng năng lực phòng thủ số để bảo vệ lợi ích quốc gia trước các mối đe dọa ngày càng tinh vi.
 
@@ -136,9 +152,12 @@ Việt Nam đã và đang tích cực xây dựng lực lượng an ninh mạng 
     slug: "sach-giai-thuong-quoc-gia-lan-tu",
     title: "Những cuốn sách đoạt Giải thưởng Sách Quốc gia lần thứ tư",
     date: "16 Tháng 11, 2021",
+    isoDate: "2021-11-16T00:00:00+07:00",
     image: "/blog/post-04.jpg",
     excerpt:
       "Điểm qua những đầu sách nổi bật nhất vừa được vinh danh tại lễ trao Giải thưởng Sách Quốc gia.",
+    tags: ["sách hay", "giải thưởng", "đọc sách", "xuất bản Việt Nam"],
+    author: "Ban Biên Tập",
     content: `
 Giải thưởng Sách Quốc gia lần thứ tư đã khép lại với nhiều dấu ấn đáng nhớ. Hãy cùng điểm qua những cuốn sách xuất sắc nhất năm nay.
 
@@ -162,9 +181,12 @@ Năm nay ghi nhận sự gia tăng đáng kể của các đầu sách về côn
     title:
       "Xu hướng đọc sách điện tử ngày càng phổ biến trong giới trẻ Việt Nam",
     date: "10 Tháng 11, 2021",
+    isoDate: "2021-11-10T00:00:00+07:00",
     image: "/blog/post-01.jpg",
     excerpt:
       "Sách điện tử đang dần trở thành lựa chọn hàng đầu của giới trẻ nhờ sự tiện lợi và khả năng tiếp cận.",
+    tags: ["sách điện tử", "giới trẻ", "công nghệ đọc sách", "ebook"],
+    author: "Ban Biên Tập",
     content: `
 Sự bùng nổ của thiết bị di động và máy đọc sách đã thay đổi thói quen đọc của người trẻ Việt Nam. Sách điện tử không còn là xa lạ mà đang dần chiếm lĩnh thị phần đáng kể.
 
@@ -187,9 +209,12 @@ Các nhà xuất bản Việt Nam đang dần thích nghi, đầu tư vào nền
     slug: "bi-quyet-viet-noi-dung",
     title: "Bí quyết viết nội dung thu hút hàng triệu lượt đọc mỗi tháng",
     date: "5 Tháng 11, 2021",
+    isoDate: "2021-11-05T00:00:00+07:00",
     image: "/blog/post-02.jpg",
     excerpt:
       "Những nguyên tắc viết nội dung được đúc kết từ các tác giả có triệu lượt đọc trên các nền tảng lớn.",
+    tags: ["viết nội dung", "content marketing", "copywriting", "SEO content"],
+    author: "Ban Biên Tập",
     content: `
 Trong thời đại nội dung bùng nổ, việc tạo ra những bài viết thực sự thu hút người đọc trở nên khó khăn hơn bao giờ hết. Tuy nhiên, có những nguyên tắc cốt lõi mà các tác giả thành công đều tuân theo.
 
@@ -218,9 +243,12 @@ Viết hay là kỹ năng có thể rèn luyện. Hãy bắt đầu từ những
     slug: "hoi-sach-quoc-te-2021",
     title: "Hội sách quốc tế 2021 – Những điểm nhấn đáng chú ý nhất",
     date: "1 Tháng 11, 2021",
+    isoDate: "2021-11-01T00:00:00+07:00",
     image: "/blog/post-03.jpg",
     excerpt:
       "Hội sách quốc tế năm nay diễn ra theo hình thức kết hợp trực tiếp và trực tuyến với nhiều điểm nhấn thú vị.",
+    tags: ["hội sách", "sự kiện sách", "xuất bản quốc tế", "2021"],
+    author: "Ban Biên Tập",
     content: `
 Hội sách quốc tế 2021 diễn ra trong bối cảnh đặc biệt với hình thức kết hợp giữa sự kiện trực tiếp và trực tuyến, thu hút sự tham gia của hàng nghìn nhà xuất bản từ khắp nơi trên thế giới.
 
