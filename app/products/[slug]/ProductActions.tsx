@@ -63,10 +63,9 @@ export default function ProductActions({ item, discountPercent }: Props) {
   const addItem = useCartStore((s) => s.addItem);
 
   const handleAddToCart = () => {
-    // parse số từ chuỗi giá VD: "3.290.000đ" → 3290000
     const priceNumber = parseInt(item.price.replace(/\D/g, "")) || 0;
     addItem({
-      id: item.name, // dùng name làm id tạm, thay bằng slug nếu có
+      id: item.name,
       name: item.name,
       image: item.image,
       price: item.price,
@@ -90,7 +89,8 @@ export default function ProductActions({ item, discountPercent }: Props) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "60% 40%",
+          // FIX: cột trái cố định để ảnh nhỏ lại, cột phải tự giãn
+          gridTemplateColumns: isMobile ? "1fr" : "480px 1fr",
           gap: "16px",
           alignItems: "start",
           marginBottom: "16px",
@@ -109,7 +109,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               src={item.image}
               alt={item.name}
               fill
-              className="object-contain p-8"
+              className="object-contain p-6" // FIX: giảm padding để ảnh gọn hơn (p-8 -> p-6)
             />
             {discountPercent && (
               <span
@@ -122,7 +122,9 @@ export default function ProductActions({ item, discountPercent }: Props) {
             {item.badge && (
               <span
                 style={{ fontSize: 11 }}
-                className={`absolute top-3 right-12 ${item.badgeColor ?? "bg-orange-500"} text-white font-bold px-2.5 py-1 rounded-full`}
+                className={`absolute top-3 right-12 ${
+                  item.badgeColor ?? "bg-orange-500"
+                } text-white font-bold px-2.5 py-1 rounded-full`}
               >
                 {item.badge}
               </span>
@@ -162,7 +164,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
         {/* ── RIGHT: Info + Actions ── */}
         <div className="flex flex-col gap-3">
           <div className="bg-white rounded-2xl p-5 flex flex-col gap-4">
-            {/* sm — meta */}
             <p style={{ fontSize: 12 }} className="text-gray-500">
               Thương hiệu:{" "}
               <span className="font-semibold text-gray-800">
@@ -173,7 +174,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               <span className="font-semibold text-green-600">Mới</span>
             </p>
 
-            {/* lg — title */}
             <h1
               className="font-extrabold text-gray-900 leading-snug"
               style={{ fontSize: isMobile ? 18 : 22 }}
@@ -181,7 +181,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               {item.name}
             </h1>
 
-            {/* xs — badge / sm — sold */}
             <div className="flex flex-wrap items-center gap-2">
               {item.country && (
                 <span
@@ -201,7 +200,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               )}
             </div>
 
-            {/* xl — price */}
             <div className="flex items-end gap-3">
               <span
                 className="font-black text-gray-900 leading-none"
@@ -227,7 +225,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               )}
             </div>
 
-            {/* base — warning */}
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
               <IconAlertTriangle
                 size={15}
@@ -240,7 +237,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
 
             <div className="h-px bg-gray-100" />
 
-            {/* base — import type */}
             <div className="flex gap-4 flex-wrap">
               {["Nhập khẩu tiêu dùng", "Nhập khẩu thương mại"].map((opt, i) => (
                 <label
@@ -267,7 +263,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               ))}
             </div>
 
-            {/* base — size label + buttons */}
             <div className="flex flex-col gap-2">
               <span
                 style={{ fontSize: 14 }}
@@ -293,7 +288,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               </div>
             </div>
 
-            {/* base — color label + buttons */}
             <div className="flex flex-col gap-2">
               <span
                 style={{ fontSize: 14 }}
@@ -333,7 +327,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
 
             <div className="h-px bg-gray-100" />
 
-            {/* base — qty + buttons (desktop only) */}
             {!isMobile && (
               <>
                 <div className="flex items-center gap-2">
@@ -386,7 +379,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               </>
             )}
 
-            {/* base — qty mobile */}
             {isMobile && (
               <div className="flex items-center gap-3">
                 <span style={{ fontSize: 14 }} className="text-gray-500">
@@ -417,7 +409,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
               </div>
             )}
 
-            {/* base — delivery */}
             <div className="flex items-center gap-2">
               <IconTruck size={15} className="text-gray-400 shrink-0" />
               <p style={{ fontSize: 14 }} className="text-gray-500">
@@ -429,7 +420,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
             </div>
           </div>
 
-          {/* md — perks */}
           <div className="bg-white rounded-2xl p-4 grid grid-cols-2 gap-3">
             {PERKS.map(({ icon: Icon, label, sub }) => (
               <div
@@ -454,7 +444,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
         </div>
       </div>
 
-      {/* Mobile fixed bottom bar */}
       {isMobile && (
         <div
           className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 flex gap-3 z-50"

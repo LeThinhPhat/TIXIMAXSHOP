@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -17,6 +17,60 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useCartStore } from "@/app/store/useCartStore";
+
+/* ─────────────────────────────────────────────
+   Design tokens (international e-commerce vibe)
+───────────────────────────────────────────── */
+const TOKENS = {
+  pageBg: "#F5F5F7",
+  cardBg: "#FFFFFF",
+  subtleBg: "#FAFAFA",
+  border: "#E8E8ED",
+  divider: "#F2F2F7",
+  text: {
+    primary: "#1D1D1F",
+    secondary: "#3C3C43",
+    tertiary: "#6E6E73",
+    quaternary: "#AEAEB2",
+  },
+  accent: {
+    orange: "#F97316",
+    orangeSoft: "#FFF7ED",
+    orangeBorder: "#FED7AA",
+    green: "#22C55E",
+    greenSoft: "#ECFDF5",
+    blueSoft: "#EFF6FF",
+    blueBorder: "#DBEAFE",
+    redSoft: "#FEF2F2",
+  },
+};
+
+const TYPE = {
+  h1: { fontSize: 24, fontWeight: 800 as const, color: TOKENS.text.primary },
+  h2: { fontSize: 16, fontWeight: 700 as const, color: TOKENS.text.primary },
+  subhead: {
+    fontSize: 14,
+    fontWeight: 700 as const,
+    color: TOKENS.text.primary,
+  },
+  body: {
+    fontSize: 14,
+    fontWeight: 400 as const,
+    color: TOKENS.text.secondary,
+  },
+  caption: {
+    fontSize: 12,
+    fontWeight: 400 as const,
+    color: TOKENS.text.tertiary,
+  },
+  micro: {
+    fontSize: 11,
+    fontWeight: 600 as const,
+    color: TOKENS.text.quaternary,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.06em",
+  },
+};
 
 /* ── helpers ── */
 function fmt(n: number) {
@@ -68,10 +122,14 @@ export default function CartPage() {
 
   const subtotal = mounted ? totalPrice() : 0;
   const qty = mounted ? totalQty() : 0;
+
   const discountPct = appliedCoupon ? COUPONS[appliedCoupon] : 0;
   const discountAmt = Math.round((subtotal * discountPct) / 100);
+
   const shipping = subtotal >= 500000 ? 0 : 35000;
   const total = subtotal - discountAmt + shipping;
+
+  const freeShipGap = Math.max(0, 500000 - subtotal);
 
   const applyCoupon = () => {
     const code = coupon.trim().toUpperCase();
@@ -92,31 +150,73 @@ export default function CartPage() {
     setCouponError("");
   };
 
+  const summaryRows = useMemo(() => {
+    const rows: Array<{
+      label: string;
+      value: string;
+      tone?: "muted" | "good";
+    }> = [];
+    rows.push({
+      label: `Tạm tính (${qty} sản phẩm)`,
+      value: fmt(subtotal),
+      tone: "muted",
+    });
+    if (discountAmt > 0)
+      rows.push({
+        label: `Giảm giá (${discountPct}%)`,
+        value: `-${fmt(discountAmt)}`,
+        tone: "good",
+      });
+    rows.push({
+      label: "Phí vận chuyển",
+      value: shipping === 0 ? "Miễn phí" : fmt(shipping),
+      tone: shipping === 0 ? "good" : "muted",
+    });
+    return rows;
+  }, [qty, subtotal, discountAmt, discountPct, shipping]);
+
   if (!mounted) return null;
 
   /* ── Empty state ── */
   if (items.length === 0) {
     return (
-      <main className="bg-[#f0f0f0] min-h-screen font-sans pt-6">
-        <div className="max-w-[1280px] mx-auto px-5 py-20 flex flex-col items-center gap-6 text-center">
-          <div className="w-24 h-24 rounded-3xl bg-white flex items-center justify-center shadow-sm">
-            <IconShoppingCart size={40} className="text-gray-200" />
+      <main
+        className="min-h-screen font-sans"
+        style={{ backgroundColor: TOKENS.pageBg }}
+      >
+        <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-10 pb-24 flex flex-col items-center text-center">
+          <div
+            className="w-24 h-24 rounded-3xl flex items-center justify-center shadow-sm"
+            style={{
+              backgroundColor: TOKENS.cardBg,
+              border: `1px solid ${TOKENS.border}`,
+            }}
+          >
+            <IconShoppingCart
+              size={40}
+              style={{ color: TOKENS.text.quaternary }}
+            />
           </div>
-          <div>
-            <h1
-              style={{ fontSize: 22 }}
-              className="font-black text-gray-900 mb-2"
-            >
-              Giỏ hàng trống
-            </h1>
-            <p style={{ fontSize: 14 }} className="text-gray-400">
-              Bạn chưa có sản phẩm nào trong giỏ hàng.
-            </p>
-          </div>
+
+          <h1 className="mt-6" style={TYPE.h1}>
+            Giỏ hàng trống
+          </h1>
+          <p
+            className="mt-2"
+            style={{ ...TYPE.body, color: TOKENS.text.tertiary }}
+          >
+            Bạn chưa có sản phẩm nào trong giỏ hàng.
+          </p>
+
           <Link
             href="/"
-            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-xl transition active:scale-95"
-            style={{ fontSize: 14 }}
+            className="mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 transition active:scale-95"
+            style={{
+              backgroundColor: TOKENS.accent.orange,
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 800,
+            }}
           >
             <IconArrowLeft size={16} />
             Tiếp tục mua sắm
@@ -127,40 +227,67 @@ export default function CartPage() {
   }
 
   return (
-    <main className="bg-[#f0f0f0] min-h-screen font-sans pt-6">
-      <div className="max-w-[1280px] mx-auto px-5 pb-16">
+    <main
+      className="min-h-screen font-sans"
+      style={{ backgroundColor: TOKENS.pageBg }}
+    >
+      {/* Container: international spacing (wide gutters) */}
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-8 pb-20">
         {/* ── Breadcrumb ── */}
         <nav
-          className="flex items-center gap-1.5 mb-5"
-          style={{ fontSize: 12 }}
+          className="flex items-center gap-1.5"
+          aria-label="Breadcrumb"
+          style={TYPE.caption}
         >
           <Link
             href="/"
-            className="text-gray-400 hover:text-orange-500 transition"
+            className="transition-colors hover:opacity-100"
+            style={{ color: TOKENS.text.tertiary }}
           >
             Trang chủ
           </Link>
-          <IconChevronRight size={12} className="text-gray-300" />
-          <span className="text-gray-700 font-medium">Giỏ hàng</span>
+          <IconChevronRight
+            size={12}
+            style={{ color: TOKENS.text.quaternary }}
+          />
+          <span style={{ color: TOKENS.text.secondary, fontWeight: 600 }}>
+            Giỏ hàng
+          </span>
         </nav>
 
-        {/* ── Page title ── */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h1 style={{ fontSize: 22 }} className="font-black text-gray-900">
-              Giỏ hàng
-            </h1>
-            <span
-              className="bg-orange-100 text-orange-600 font-bold px-3 py-1 rounded-full"
-              style={{ fontSize: 12 }}
-            >
-              {qty} sản phẩm
-            </span>
+        {/* ── Page header ── */}
+        <div className="mt-6 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 style={TYPE.h1}>Giỏ hàng</h1>
+            <div className="mt-2 inline-flex items-center gap-2">
+              <span
+                className="rounded-full px-3 py-1"
+                style={{
+                  backgroundColor: TOKENS.accent.orangeSoft,
+                  border: `1px solid ${TOKENS.accent.orangeBorder}`,
+                  color: TOKENS.accent.orange,
+                  fontSize: 12,
+                  fontWeight: 800,
+                }}
+              >
+                {qty} sản phẩm
+              </span>
+              <span style={{ ...TYPE.caption, color: TOKENS.text.tertiary }}>
+                Kiểm tra số lượng và mã giảm giá trước khi thanh toán.
+              </span>
+            </div>
           </div>
+
           <button
             onClick={clearCart}
-            className="flex items-center gap-1.5 text-gray-400 hover:text-red-500 transition"
-            style={{ fontSize: 13 }}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 transition-colors"
+            style={{ fontSize: 13, color: TOKENS.text.tertiary }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget.style.color as any) = "#EF4444")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget.style.color as any) = TOKENS.text.tertiary)
+            }
           >
             <IconTrash size={14} />
             Xóa tất cả
@@ -168,35 +295,41 @@ export default function CartPage() {
         </div>
 
         {/* ── Main grid ── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 360px",
-            gap: "20px",
-            alignItems: "start",
-          }}
-          className="max-[900px]:!grid-cols-1"
-        >
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
           {/* ════ LEFT: Items list ════ */}
-          <div className="flex flex-col gap-3">
+          <section
+            className="flex flex-col gap-4"
+            aria-label="Danh sách sản phẩm"
+          >
             {/* Column headers — desktop */}
             <div
-              className="hidden md:grid bg-white rounded-2xl px-6 py-3"
+              className="hidden md:grid rounded-2xl px-6 py-3"
               style={{
-                gridTemplateColumns: "1fr 120px 120px 80px",
-                fontSize: 12,
+                backgroundColor: TOKENS.cardBg,
+                border: `1px solid ${TOKENS.border}`,
+                gridTemplateColumns: "1fr 140px 140px 120px",
+                ...TYPE.caption,
               }}
             >
-              <span className="text-gray-400 font-semibold uppercase tracking-wider">
+              <span style={{ ...TYPE.micro, color: TOKENS.text.quaternary }}>
                 Sản phẩm
               </span>
-              <span className="text-gray-400 font-semibold uppercase tracking-wider text-center">
+              <span
+                className="text-center"
+                style={{ ...TYPE.micro, color: TOKENS.text.quaternary }}
+              >
                 Đơn giá
               </span>
-              <span className="text-gray-400 font-semibold uppercase tracking-wider text-center">
+              <span
+                className="text-center"
+                style={{ ...TYPE.micro, color: TOKENS.text.quaternary }}
+              >
                 Số lượng
               </span>
-              <span className="text-gray-400 font-semibold uppercase tracking-wider text-right">
+              <span
+                className="text-right"
+                style={{ ...TYPE.micro, color: TOKENS.text.quaternary }}
+              >
                 Tổng
               </span>
             </div>
@@ -204,320 +337,482 @@ export default function CartPage() {
             {/* Items */}
             {items.map((item) => {
               const lineTotal = item.priceNumber * item.qty;
-              return (
-                <div
-                  key={`${item.id}-${item.size}-${item.color}`}
-                  className="bg-white rounded-2xl p-5"
-                >
-                  {/* Mobile layout */}
-                  <div className="flex gap-4">
-                    {/* Image */}
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-50 shrink-0 relative">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-contain p-2"
-                      />
-                    </div>
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p
-                            style={{ fontSize: 14 }}
-                            className="font-semibold text-gray-900 line-clamp-2 leading-snug"
-                          >
-                            {item.name}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mt-1.5">
-                            {item.size && (
-                              <span
-                                style={{ fontSize: 12 }}
-                                className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md font-medium"
-                              >
-                                Size: {item.size}
-                              </span>
-                            )}
-                            {item.color && (
-                              <span
-                                style={{ fontSize: 12 }}
-                                className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md font-medium"
-                              >
-                                {item.color}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          onClick={() =>
-                            removeItem(item.id, item.size, item.color)
-                          }
-                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 transition text-gray-300 hover:text-red-400 shrink-0"
-                        >
-                          <IconTrash size={14} />
-                        </button>
+              return (
+                <article
+                  key={`${item.id}-${item.size}-${item.color}`}
+                  className="rounded-2xl"
+                  style={{
+                    backgroundColor: TOKENS.cardBg,
+                    border: `1px solid ${TOKENS.border}`,
+                  }}
+                >
+                  <div className="p-5 md:p-6">
+                    <div className="flex gap-4">
+                      {/* Image */}
+                      <div
+                        className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shrink-0"
+                        style={{
+                          backgroundColor: TOKENS.subtleBg,
+                          border: `1px solid ${TOKENS.divider}`,
+                        }}
+                      >
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-contain p-2"
+                        />
                       </div>
 
-                      {/* Price row — always visible */}
-                      <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
-                        <span
-                          style={{ fontSize: 14 }}
-                          className="text-gray-500"
-                        >
-                          {item.price}
-                        </span>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p
+                              className="line-clamp-2"
+                              style={{ ...TYPE.subhead, lineHeight: 1.25 }}
+                            >
+                              {item.name}
+                            </p>
 
-                        {/* Qty stepper */}
-                        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                            {(item.size || item.color) && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {item.size && (
+                                  <span
+                                    className="rounded-lg px-2 py-1"
+                                    style={{
+                                      fontSize: 12,
+                                      color: TOKENS.text.tertiary,
+                                      backgroundColor: TOKENS.subtleBg,
+                                      border: `1px solid ${TOKENS.divider}`,
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    Size: {item.size}
+                                  </span>
+                                )}
+                                {item.color && (
+                                  <span
+                                    className="rounded-lg px-2 py-1"
+                                    style={{
+                                      fontSize: 12,
+                                      color: TOKENS.text.tertiary,
+                                      backgroundColor: TOKENS.subtleBg,
+                                      border: `1px solid ${TOKENS.divider}`,
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {item.color}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
                           <button
                             onClick={() =>
-                              updateQty(
-                                item.id,
-                                item.size,
-                                item.color,
-                                item.qty - 1,
-                              )
+                              removeItem(item.id, item.size, item.color)
                             }
-                            className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
+                            className="w-9 h-9 rounded-xl grid place-items-center transition-colors"
+                            style={{ color: TOKENS.text.quaternary }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                TOKENS.accent.redSoft;
+                              e.currentTarget.style.color = "#EF4444";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "transparent";
+                              e.currentTarget.style.color =
+                                TOKENS.text.quaternary;
+                            }}
+                            aria-label="Xóa sản phẩm"
                           >
-                            <IconMinus size={13} />
-                          </button>
-                          <span
-                            style={{ fontSize: 14 }}
-                            className="w-9 text-center font-bold text-gray-800"
-                          >
-                            {item.qty}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateQty(
-                                item.id,
-                                item.size,
-                                item.color,
-                                item.qty + 1,
-                              )
-                            }
-                            className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
-                          >
-                            <IconPlus size={13} />
+                            <IconTrash size={16} />
                           </button>
                         </div>
 
-                        <span
-                          style={{ fontSize: 14 }}
-                          className="font-black text-gray-900"
-                        >
-                          {fmt(lineTotal)}
-                        </span>
+                        {/* Price + Qty + Total */}
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-baseline gap-2">
+                            <span
+                              style={{
+                                ...TYPE.body,
+                                color: TOKENS.text.tertiary,
+                              }}
+                            >
+                              {item.price}
+                            </span>
+                          </div>
+
+                          {/* Qty stepper */}
+                          <div
+                            className="flex items-center rounded-2xl overflow-hidden"
+                            style={{
+                              border: `1px solid ${TOKENS.border}`,
+                              backgroundColor: TOKENS.cardBg,
+                            }}
+                          >
+                            <button
+                              onClick={() =>
+                                updateQty(
+                                  item.id,
+                                  item.size,
+                                  item.color,
+                                  item.qty - 1,
+                                )
+                              }
+                              className="w-10 h-10 grid place-items-center transition-colors"
+                              style={{ color: TOKENS.text.secondary }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  TOKENS.subtleBg)
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "transparent")
+                              }
+                              aria-label="Giảm số lượng"
+                            >
+                              <IconMinus size={14} />
+                            </button>
+
+                            <span
+                              className="w-10 text-center"
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 800,
+                                color: TOKENS.text.primary,
+                              }}
+                            >
+                              {item.qty}
+                            </span>
+
+                            <button
+                              onClick={() =>
+                                updateQty(
+                                  item.id,
+                                  item.size,
+                                  item.color,
+                                  item.qty + 1,
+                                )
+                              }
+                              className="w-10 h-10 grid place-items-center transition-colors"
+                              style={{ color: TOKENS.text.secondary }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  TOKENS.subtleBg)
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "transparent")
+                              }
+                              aria-label="Tăng số lượng"
+                            >
+                              <IconPlus size={14} />
+                            </button>
+                          </div>
+
+                          <span
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 900,
+                              color: TOKENS.text.primary,
+                            }}
+                          >
+                            {fmt(lineTotal)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
 
             {/* Continue shopping */}
             <Link
               href="/"
-              className="flex items-center gap-2 text-gray-500 hover:text-orange-500 transition self-start mt-1"
-              style={{ fontSize: 14 }}
+              className="mt-1 inline-flex items-center gap-2 self-start transition-colors"
+              style={{ fontSize: 14, color: TOKENS.text.tertiary }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget.style.color as any) = TOKENS.accent.orange)
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget.style.color as any) = TOKENS.text.tertiary)
+              }
             >
-              <IconArrowLeft size={15} />
+              <IconArrowLeft size={16} />
               Tiếp tục mua sắm
             </Link>
 
             {/* Perks */}
-            <div className="bg-white rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 mt-1">
+            <div
+              className="mt-2 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-3 gap-5"
+              style={{
+                backgroundColor: TOKENS.cardBg,
+                border: `1px solid ${TOKENS.border}`,
+              }}
+              aria-label="Quyền lợi"
+            >
               {PERKS.map(({ icon: Icon, label, sub }) => (
                 <div key={label} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-                    <Icon size={18} className="text-orange-500" />
+                  <div
+                    className="w-11 h-11 rounded-2xl grid place-items-center shrink-0"
+                    style={{
+                      backgroundColor: TOKENS.accent.orangeSoft,
+                      border: `1px solid ${TOKENS.accent.orangeBorder}`,
+                    }}
+                  >
+                    <Icon size={18} style={{ color: TOKENS.accent.orange }} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p
-                      style={{ fontSize: 13 }}
-                      className="font-semibold text-gray-800"
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 800,
+                        color: TOKENS.text.primary,
+                        lineHeight: 1.2,
+                      }}
                     >
                       {label}
                     </p>
-                    <p style={{ fontSize: 12 }} className="text-gray-400">
+                    <p className="mt-1" style={TYPE.caption}>
                       {sub}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
           {/* ════ RIGHT: Order summary ════ */}
-          <div className="flex flex-col gap-4 sticky top-24">
+          <aside
+            className="flex flex-col gap-4 lg:sticky lg:top-24"
+            aria-label="Tóm tắt đơn hàng"
+          >
             {/* Coupon */}
-            <div className="bg-white rounded-2xl p-5">
-              <p
-                style={{ fontSize: 14 }}
-                className="font-bold text-gray-800 mb-3 flex items-center gap-2"
-              >
-                <IconTag size={16} className="text-orange-500" />
-                Mã giảm giá
-              </p>
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                backgroundColor: TOKENS.cardBg,
+                border: `1px solid ${TOKENS.border}`,
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <p className="flex items-center gap-2" style={TYPE.subhead}>
+                  <IconTag size={16} style={{ color: TOKENS.accent.orange }} />
+                  Mã giảm giá
+                </p>
 
-              {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                  <div>
-                    <p
-                      style={{ fontSize: 13 }}
-                      className="font-bold text-green-700"
-                    >
-                      {appliedCoupon}
-                    </p>
-                    <p style={{ fontSize: 12 }} className="text-green-600">
-                      {couponSuccess}
-                    </p>
-                  </div>
+                {appliedCoupon && (
                   <button
                     onClick={removeCoupon}
-                    className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-green-100 transition text-green-500"
+                    className="inline-flex items-center gap-1 rounded-xl px-3 py-2 transition-colors"
+                    style={{ fontSize: 12, color: TOKENS.text.tertiary }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget.style.color as any) =
+                        TOKENS.accent.orange)
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget.style.color as any) =
+                        TOKENS.text.tertiary)
+                    }
                   >
-                    <IconX size={13} />
+                    <IconX size={14} />
+                    Gỡ mã
                   </button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    value={coupon}
-                    onChange={(e) => {
-                      setCoupon(e.target.value);
-                      setCouponError("");
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-                    placeholder="Nhập mã giảm giá..."
-                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-gray-400 transition"
-                    style={{ fontSize: 14 }}
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    className="bg-gray-900 hover:bg-gray-700 text-white font-bold px-4 rounded-xl transition active:scale-95"
-                    style={{ fontSize: 14 }}
-                  >
-                    Áp dụng
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
 
-              {couponError && (
-                <p style={{ fontSize: 12 }} className="text-red-500 mt-2">
-                  {couponError}
-                </p>
-              )}
+              <div className="mt-4">
+                {appliedCoupon ? (
+                  <div
+                    className="flex items-center justify-between rounded-2xl px-4 py-3"
+                    style={{
+                      backgroundColor: TOKENS.accent.greenSoft,
+                      border: `1px solid #BBF7D0`,
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 900,
+                          color: "#15803D",
+                        }}
+                      >
+                        {appliedCoupon}
+                      </p>
+                      <p
+                        className="mt-1"
+                        style={{ fontSize: 12, color: "#16A34A" }}
+                      >
+                        {couponSuccess}
+                      </p>
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="w-9 h-9 rounded-xl grid place-items-center transition-colors"
+                      style={{ color: "#16A34A" }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#DCFCE7")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.backgroundColor = "transparent")
+                      }
+                      aria-label="Xóa mã giảm giá"
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <input
+                        value={coupon}
+                        onChange={(e) => {
+                          setCoupon(e.target.value);
+                          setCouponError("");
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                        placeholder="Nhập mã giảm giá..."
+                        className="flex-1 rounded-2xl px-4 py-3 outline-none transition"
+                        style={{
+                          fontSize: 14,
+                          border: `1px solid ${TOKENS.border}`,
+                          backgroundColor: TOKENS.cardBg,
+                          color: TOKENS.text.primary,
+                        }}
+                      />
+                      <button
+                        onClick={applyCoupon}
+                        className="rounded-2xl px-4 py-3 transition active:scale-95"
+                        style={{
+                          backgroundColor: "#111827",
+                          color: "#fff",
+                          fontSize: 14,
+                          fontWeight: 900,
+                        }}
+                      >
+                        Áp dụng
+                      </button>
+                    </div>
 
-              {/* Hint */}
-              {!appliedCoupon && (
-                <p style={{ fontSize: 12 }} className="text-gray-400 mt-2">
-                  Thử:{" "}
-                  <button
-                    onClick={() => {
-                      setCoupon("FADO10");
-                      setCouponError("");
-                    }}
-                    className="text-orange-500 font-semibold hover:underline"
-                  >
-                    FADO10
-                  </button>
-                  {", "}
-                  <button
-                    onClick={() => {
-                      setCoupon("VIP20");
-                      setCouponError("");
-                    }}
-                    className="text-orange-500 font-semibold hover:underline"
-                  >
-                    VIP20
-                  </button>
-                </p>
-              )}
+                    {couponError && (
+                      <p
+                        className="mt-2"
+                        style={{ fontSize: 12, color: "#EF4444" }}
+                      >
+                        {couponError}
+                      </p>
+                    )}
+
+                    <p className="mt-3" style={TYPE.caption}>
+                      Thử:{" "}
+                      <button
+                        onClick={() => {
+                          setCoupon("FADO10");
+                          setCouponError("");
+                        }}
+                        className="font-semibold hover:underline"
+                        style={{ color: TOKENS.accent.orange }}
+                      >
+                        FADO10
+                      </button>
+                      {", "}
+                      <button
+                        onClick={() => {
+                          setCoupon("VIP20");
+                          setCouponError("");
+                        }}
+                        className="font-semibold hover:underline"
+                        style={{ color: TOKENS.accent.orange }}
+                      >
+                        VIP20
+                      </button>
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Summary */}
-            <div className="bg-white rounded-2xl p-5">
-              <p
-                style={{ fontSize: 16 }}
-                className="font-bold text-gray-900 mb-4"
-              >
-                Tóm tắt đơn hàng
-              </p>
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                backgroundColor: TOKENS.cardBg,
+                border: `1px solid ${TOKENS.border}`,
+              }}
+            >
+              <p style={{ ...TYPE.h2, fontSize: 16 }}>Tóm tắt đơn hàng</p>
 
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: 14 }} className="text-gray-500">
-                    Tạm tính ({qty} sản phẩm)
-                  </span>
-                  <span
-                    style={{ fontSize: 14 }}
-                    className="font-semibold text-gray-800"
+              <div className="mt-4 flex flex-col gap-3">
+                {summaryRows.map((r) => (
+                  <div
+                    key={r.label}
+                    className="flex items-center justify-between gap-3"
                   >
-                    {fmt(subtotal)}
-                  </span>
-                </div>
-
-                {discountAmt > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span style={{ fontSize: 14 }} className="text-gray-500">
-                      Giảm giá ({discountPct}%)
+                    <span style={{ ...TYPE.body, color: TOKENS.text.tertiary }}>
+                      {r.label}
                     </span>
                     <span
-                      style={{ fontSize: 14 }}
-                      className="font-semibold text-green-600"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color:
+                          r.tone === "good" ? "#16A34A" : TOKENS.text.primary,
+                      }}
                     >
-                      -{fmt(discountAmt)}
+                      {r.value}
                     </span>
                   </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: 14 }} className="text-gray-500">
-                    Phí vận chuyển
-                  </span>
-                  {shipping === 0 ? (
-                    <span
-                      style={{ fontSize: 14 }}
-                      className="font-semibold text-green-600"
-                    >
-                      Miễn phí
-                    </span>
-                  ) : (
-                    <span
-                      style={{ fontSize: 14 }}
-                      className="font-semibold text-gray-800"
-                    >
-                      {fmt(shipping)}
-                    </span>
-                  )}
-                </div>
+                ))}
 
                 {shipping > 0 && (
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
-                    <p style={{ fontSize: 12 }} className="text-blue-600">
-                      Mua thêm <strong>{fmt(500000 - subtotal)}</strong> để được
-                      miễn phí vận chuyển
+                  <div
+                    className="rounded-2xl px-4 py-3"
+                    style={{
+                      backgroundColor: TOKENS.accent.blueSoft,
+                      border: `1px solid ${TOKENS.accent.blueBorder}`,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "#2563EB",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      Mua thêm <strong>{fmt(freeShipGap)}</strong> để được miễn
+                      phí vận chuyển.
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="h-px bg-gray-100 my-4" />
+              <div
+                className="my-5"
+                style={{ height: 1, backgroundColor: TOKENS.divider }}
+              />
 
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between">
                 <span
-                  style={{ fontSize: 16 }}
-                  className="font-bold text-gray-900"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 900,
+                    color: TOKENS.text.primary,
+                  }}
                 >
                   Tổng cộng
                 </span>
                 <span
-                  style={{ fontSize: 20 }}
-                  className="font-black text-gray-900"
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: TOKENS.text.primary,
+                  }}
                 >
                   {fmt(total)}
                 </span>
@@ -525,22 +820,58 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600
-                           text-white font-bold py-3.5 rounded-xl transition active:scale-95"
-                style={{ fontSize: 14 }}
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 transition active:scale-95"
+                style={{
+                  backgroundColor: TOKENS.accent.orange,
+                  color: "#fff",
+                  fontSize: 14,
+                  fontWeight: 900,
+                }}
               >
                 Tiến hành thanh toán
                 <IconChevronRight size={16} />
               </Link>
 
-              <p
-                style={{ fontSize: 12 }}
-                className="text-gray-400 text-center mt-3"
-              >
+              <p className="mt-3 text-center" style={TYPE.caption}>
                 🔒 Thanh toán bảo mật SSL 256-bit
               </p>
             </div>
-          </div>
+
+            {/* Trust note (small, international) */}
+            <div
+              className="rounded-2xl p-5"
+              style={{
+                backgroundColor: TOKENS.cardBg,
+                border: `1px solid ${TOKENS.border}`,
+              }}
+            >
+              <p
+                style={{
+                  ...TYPE.caption,
+                  color: TOKENS.text.secondary,
+                  lineHeight: 1.6,
+                }}
+              >
+                Bằng cách đặt hàng, bạn đồng ý với{" "}
+                <Link
+                  href="#"
+                  className="font-semibold hover:underline"
+                  style={{ color: TOKENS.accent.orange }}
+                >
+                  Điều khoản
+                </Link>{" "}
+                và{" "}
+                <Link
+                  href="#"
+                  className="font-semibold hover:underline"
+                  style={{ color: TOKENS.accent.orange }}
+                >
+                  Chính sách bảo mật
+                </Link>
+                .
+              </p>
+            </div>
+          </aside>
         </div>
       </div>
     </main>
