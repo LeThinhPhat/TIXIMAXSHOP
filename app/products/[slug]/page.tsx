@@ -120,8 +120,8 @@ export default async function ProductDetail({
       className="min-h-screen font-sans"
       style={{ backgroundColor: "#F5F5F7" }}
     >
-      {/* ── Breadcrumb ─────────────────────────────────────── */}
-      <div className="mx-auto px-5 pt-6 pb-4">
+      {/* ── Breadcrumb (desktop only) ───────────────────────── */}
+      <div className="hidden md:block max-w-7xl mx-auto px-5 pt-6 pb-4">
         <nav
           aria-label="Breadcrumb"
           className="flex items-center gap-1.5"
@@ -135,19 +135,17 @@ export default async function ProductDetail({
             <IconHome size={24} />
           </Link>
 
-          <IconChevronRight size={24} style={{ color: "#AEAEB2" }} />
+          <IconChevronRight size={14} style={{ color: "#AEAEB2" }} />
 
           {item.country && (
             <>
-              {/* base: 14px — breadcrumb link */}
               <Link href="/" style={{ ...T.body, color: "#6E6E73" }}>
                 {item.country}
               </Link>
-              <IconChevronRight size={24} style={{ color: "#AEAEB2" }} />
+              <IconChevronRight size={14} style={{ color: "#AEAEB2" }} />
             </>
           )}
 
-          {/* base: 14px — current page */}
           <span
             aria-current="page"
             className="line-clamp-1 max-w-[520px]"
@@ -159,11 +157,16 @@ export default async function ProductDetail({
       </div>
 
       {/* ── Page body ──────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-5 pt-2 pb-16 flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto md:px-5 pt-0 md:pt-2 pb-16 flex flex-col gap-4 md:gap-6">
         {/* TOP ROW — image + buy panel (client component) */}
         <ProductActions item={item as any} discountPercent={discountPercent} />
 
-        {/* Trust bar */}
+        {/* ── Trust bar ──────────────────────────────────────
+            Desktop : grid 3 cột với divider
+            Mobile  : scroll ngang, mỗi badge là 1 pill card
+        ── */}
+
+        {/* Desktop trust bar */}
         <div
           className="hidden md:grid grid-cols-3 gap-px overflow-hidden rounded-2xl border"
           style={{ borderColor: "#E8E8ED", backgroundColor: "#E8E8ED" }}
@@ -179,7 +182,6 @@ export default async function ProductDetail({
                 style={{ color: "#22C55E", flexShrink: 0 }}
               />
               <div>
-                {/* base: 14px — trust label */}
                 <p
                   style={{
                     fontSize: 14,
@@ -190,7 +192,6 @@ export default async function ProductDetail({
                 >
                   {label}
                 </p>
-                {/* sm: 12px — trust sub */}
                 <p style={{ fontSize: 12, color: "#6E6E73", marginTop: 2 }}>
                   {sub}
                 </p>
@@ -199,25 +200,62 @@ export default async function ProductDetail({
           ))}
         </div>
 
-        {/* BOTTOM ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_256px] gap-4 items-start">
+        {/* Mobile trust bar — scroll ngang */}
+        <div className="flex md:hidden gap-3 overflow-x-auto pb-1 -mx-0 px-4">
+          {TRUST_BADGES.map(({ label, sub }) => (
+            <div
+              key={label}
+              className="flex-shrink-0 flex items-center gap-2.5 rounded-xl px-4 py-3"
+              style={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+                minWidth: 170,
+              }}
+            >
+              <IconCircleCheck
+                size={16}
+                style={{ color: "#22C55E", flexShrink: 0 }}
+              />
+              <div>
+                <p
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#1D1D1F",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {label}
+                </p>
+                <p style={{ fontSize: 11, color: "#6E6E73", marginTop: 1 }}>
+                  {sub}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── BOTTOM ROW ─────────────────────────────────────
+            Desktop : 2 cột [content | sidebar]
+            Mobile  : 1 cột, sidebar cards được tách ra
+                      và đặt xen kẽ hợp lý
+        ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_256px] gap-4 items-start md:px-0 px-4">
           {/* ── Left column ──────────────────────────────── */}
           <div className="flex flex-col gap-4">
             {/* Description */}
             {item.description && (
               <section
-                className="rounded-2xl p-6"
+                className="rounded-2xl p-5 md:p-6"
                 style={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E8E8ED",
                 }}
                 aria-labelledby="desc-heading"
               >
-                {/* lg: 18px — section heading */}
                 <h2 id="desc-heading" style={{ ...T.h2, marginBottom: 14 }}>
                   Mô tả sản phẩm
                 </h2>
-                {/* base: 14px — body text */}
                 <p
                   className="leading-relaxed"
                   style={{
@@ -232,20 +270,60 @@ export default async function ProductDetail({
               </section>
             )}
 
+            {/* Mobile — Seller card (hiển thị sớm hơn trên mobile) */}
+            <div
+              className="flex md:hidden rounded-2xl p-4 items-center gap-4"
+              style={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+              }}
+            >
+              <div className="flex-1">
+                <p style={{ ...T.micro, marginBottom: 4 }}>Người bán</p>
+                <p style={{ fontSize: 15, fontWeight: 600, color: "#1D1D1F" }}>
+                  EmcomerFado Inc
+                </p>
+                <p style={{ ...T.caption, marginTop: 2 }}>Đối tác chính thức</p>
+              </div>
+              {/* Hotline inline trên mobile */}
+              <div
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                style={{
+                  backgroundColor: "#FFF7ED",
+                  border: "1px solid #FED7AA",
+                }}
+              >
+                <IconHeadset
+                  size={16}
+                  style={{ color: "#F97316", flexShrink: 0 }}
+                />
+                <div>
+                  <p
+                    style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}
+                  >
+                    Hotline
+                  </p>
+                  <p
+                    style={{ fontSize: 11, color: "#F97316", fontWeight: 600 }}
+                  >
+                    1900 1234
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Benefits */}
             <section
-              className="rounded-2xl p-6"
+              className="rounded-2xl p-5 md:p-6"
               style={{
                 backgroundColor: "#FFFFFF",
                 border: "1px solid #E8E8ED",
               }}
               aria-labelledby="benefits-heading"
             >
-              {/* lg: 18px — section heading */}
               <h2 id="benefits-heading" style={{ ...T.h2, marginBottom: 14 }}>
                 Quyền lợi khi mua hàng
               </h2>
-
               <ul
                 className="rounded-xl overflow-hidden"
                 style={{ border: "1px solid #E8E8ED" }}
@@ -260,27 +338,65 @@ export default async function ProductDetail({
                     }}
                   >
                     <Icon size={16} className={`${color} mt-0.5 shrink-0`} />
-                    {/* base: 14px — benefit text */}
                     <span style={{ ...T.body, lineHeight: 1.6 }}>{text}</span>
                   </li>
                 ))}
               </ul>
             </section>
 
+            {/* Mobile — Support links (đặt sau benefits) */}
+            <div
+              className="flex md:hidden flex-col rounded-2xl p-4"
+              style={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E8E8ED",
+              }}
+            >
+              <p style={{ ...T.subhead, marginBottom: 12 }}>Bạn cần hỗ trợ?</p>
+              <ul className="flex flex-col" style={{ gap: 2 }}>
+                {SUPPORT_LINKS.map((link, idx) => (
+                  <li key={link}>
+                    <Link
+                      href="#"
+                      className="flex items-center justify-between rounded-lg transition-colors hover:bg-orange-50 hover:text-orange-500"
+                      style={{
+                        fontSize: 14,
+                        color: "#3C3C43",
+                        padding: "8px 10px",
+                      }}
+                    >
+                      <span>{link}</span>
+                      <IconChevronRight
+                        size={13}
+                        style={{ color: "#AEAEB2", flexShrink: 0 }}
+                      />
+                    </Link>
+                    {idx < SUPPORT_LINKS.length - 1 && (
+                      <div
+                        style={{
+                          height: 1,
+                          backgroundColor: "#F2F2F7",
+                          margin: "0 10px",
+                        }}
+                      />
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             {/* Specs */}
             <section
-              className="rounded-2xl p-6"
+              className="rounded-2xl p-5 md:p-6"
               style={{
                 backgroundColor: "#FFFFFF",
                 border: "1px solid #E8E8ED",
               }}
               aria-labelledby="specs-heading"
             >
-              {/* lg: 18px — section heading */}
               <h2 id="specs-heading" style={{ ...T.h2, marginBottom: 14 }}>
                 Thông số kỹ thuật
               </h2>
-
               <table className="w-full border-collapse">
                 <tbody>
                   {specRows.map(([label, value], idx) => (
@@ -291,7 +407,6 @@ export default async function ProductDetail({
                         borderBottom: "1px solid #F2F2F7",
                       }}
                     >
-                      {/* sm: 12px — spec label (intentional de-emphasis) */}
                       <td
                         className="rounded-l-lg"
                         style={{
@@ -304,7 +419,6 @@ export default async function ProductDetail({
                       >
                         {label}
                       </td>
-                      {/* base: 14px — spec value */}
                       <td
                         className="rounded-r-lg"
                         style={{
@@ -323,8 +437,8 @@ export default async function ProductDetail({
             </section>
           </div>
 
-          {/* ── Right sidebar ─────────────────────────────── */}
-          <aside className="flex flex-col gap-3 sticky top-5">
+          {/* ── Right sidebar (desktop only) ──────────────── */}
+          <aside className="hidden md:flex flex-col gap-3 sticky top-5">
             {/* Seller card */}
             <div
               className="rounded-2xl p-4"
@@ -333,13 +447,10 @@ export default async function ProductDetail({
                 border: "1px solid #E8E8ED",
               }}
             >
-              {/* xs: 11px — micro uppercase label */}
               <p style={{ ...T.micro, marginBottom: 6 }}>Người bán</p>
-              {/* 15px — seller name (subhead) */}
               <p style={{ fontSize: 15, fontWeight: 600, color: "#1D1D1F" }}>
                 EmcomerFado Inc
               </p>
-              {/* sm: 12px — seller sub */}
               <p style={{ ...T.caption, marginTop: 2 }}>Đối tác chính thức</p>
             </div>
 
@@ -351,9 +462,7 @@ export default async function ProductDetail({
                 border: "1px solid #E8E8ED",
               }}
             >
-              {/* 15px — subhead */}
               <p style={{ ...T.subhead, marginBottom: 12 }}>Bạn cần hỗ trợ?</p>
-
               <ul className="flex flex-col" style={{ gap: 2 }}>
                 {SUPPORT_LINKS.map((link, idx) => (
                   <li key={link}>
@@ -361,7 +470,7 @@ export default async function ProductDetail({
                       href="#"
                       className="flex items-center justify-between rounded-lg transition-colors hover:bg-orange-50 hover:text-orange-500"
                       style={{
-                        fontSize: 14, // base: 14px — support link (was 13, now synced)
+                        fontSize: 14,
                         color: "#3C3C43",
                         padding: "8px 10px",
                       }}
@@ -399,11 +508,9 @@ export default async function ProductDetail({
                 style={{ color: "#F97316", flexShrink: 0 }}
               />
               <div>
-                {/* base: 14px — hotline label */}
                 <p style={{ fontSize: 14, fontWeight: 600, color: "#1D1D1F" }}>
                   Hotline hỗ trợ
                 </p>
-                {/* sm: 12px — hotline number/time */}
                 <p
                   style={{
                     fontSize: 12,
