@@ -21,19 +21,9 @@ import {
   IconShoppingCart,
   IconAlertTriangle,
   IconTruck,
-  IconRefresh,
-  IconShieldCheck,
-  IconLock,
   IconCheck,
 } from "@tabler/icons-react";
 import { useCartStore } from "@/app/store/useCartStore";
-
-const PERKS = [
-  { icon: IconTruck, label: "Miễn phí vận chuyển", sub: "Đơn từ 500.000đ" },
-  { icon: IconRefresh, label: "Đổi trả dễ dàng", sub: "Trong vòng 7 ngày" },
-  { icon: IconShieldCheck, label: "Hàng chính hãng", sub: "100% authentic" },
-  { icon: IconLock, label: "Thanh toán an toàn", sub: "Bảo mật SSL" },
-];
 
 type Props = {
   item: {
@@ -89,7 +79,6 @@ export default function ProductActions({ item, discountPercent }: Props) {
       <div
         style={{
           display: "grid",
-          // FIX: cột trái cố định để ảnh nhỏ lại, cột phải tự giãn
           gridTemplateColumns: isMobile ? "1fr" : "480px 1fr",
           gap: "16px",
           alignItems: "start",
@@ -109,8 +98,9 @@ export default function ProductActions({ item, discountPercent }: Props) {
               src={item.image}
               alt={item.name}
               fill
-              className="object-contain p-6" // FIX: giảm padding để ảnh gọn hơn (p-8 -> p-6)
+              className="object-contain p-6"
             />
+            {/* xs: 11px — badge */}
             {discountPercent && (
               <span
                 style={{ fontSize: 11 }}
@@ -164,7 +154,8 @@ export default function ProductActions({ item, discountPercent }: Props) {
         {/* ── RIGHT: Info + Actions ── */}
         <div className="flex flex-col gap-3">
           <div className="bg-white rounded-2xl p-5 flex flex-col gap-4">
-            <p style={{ fontSize: 12 }} className="text-gray-500">
+            {/* base: 14px — meta */}
+            <p style={{ fontSize: 24 }} className="text-gray-500">
               Thương hiệu:{" "}
               <span className="font-semibold text-gray-800">
                 {item.category ?? "EmcomerFado"}
@@ -174,6 +165,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               <span className="font-semibold text-green-600">Mới</span>
             </p>
 
+            {/* lg: 22px desktop / 18px mobile — h1 */}
             <h1
               className="font-extrabold text-gray-900 leading-snug"
               style={{ fontSize: isMobile ? 18 : 22 }}
@@ -182,6 +174,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
             </h1>
 
             <div className="flex flex-wrap items-center gap-2">
+              {/* xs: 11px — tag nhỏ */}
               {item.country && (
                 <span
                   style={{ fontSize: 11 }}
@@ -190,6 +183,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
                   Bán tại: {item.country}
                 </span>
               )}
+              {/* sm: 12px — meta */}
               {item.sold && (
                 <p style={{ fontSize: 12 }} className="text-gray-400">
                   Đã bán{" "}
@@ -200,6 +194,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               )}
             </div>
 
+            {/* xl: 28px desktop / 22px mobile — price */}
             <div className="flex items-end gap-3">
               <span
                 className="font-black text-gray-900 leading-none"
@@ -207,6 +202,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               >
                 {item.price}
               </span>
+              {/* base: 14px — oldPrice, discount */}
               {item.oldPrice && (
                 <span
                   style={{ fontSize: 14 }}
@@ -225,6 +221,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               )}
             </div>
 
+            {/* base: 14px — notice */}
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
               <IconAlertTriangle
                 size={15}
@@ -237,6 +234,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
 
             <div className="h-px bg-gray-100" />
 
+            {/* base: 14px — radio options */}
             <div className="flex gap-4 flex-wrap">
               {["Nhập khẩu tiêu dùng", "Nhập khẩu thương mại"].map((opt, i) => (
                 <label
@@ -263,6 +261,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               ))}
             </div>
 
+            {/* base: 14px — size label & options */}
             <div className="flex flex-col gap-2">
               <span
                 style={{ fontSize: 14 }}
@@ -288,6 +287,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
               </div>
             </div>
 
+            {/* base: 14px — color label & options */}
             <div className="flex flex-col gap-2">
               <span
                 style={{ fontSize: 14 }}
@@ -338,6 +338,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
                     >
                       <IconMinus size={15} />
                     </button>
+                    {/* base: 14px — qty */}
                     <span
                       style={{ fontSize: 14 }}
                       className="w-10 text-center font-bold text-gray-800"
@@ -352,6 +353,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
                       <IconPlus size={15} />
                     </button>
                   </div>
+                  {/* base: 14px — button */}
                   <button
                     onClick={handleAddToCart}
                     style={{ fontSize: 14 }}
@@ -369,6 +371,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
                     {added ? "Đã thêm!" : "Thêm vào giỏ"}
                   </button>
                 </div>
+                {/* base: 14px — button */}
                 <button
                   style={{ fontSize: 14 }}
                   className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold py-3 rounded-xl transition-all"
@@ -381,6 +384,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
 
             {isMobile && (
               <div className="flex items-center gap-3">
+                {/* base: 14px */}
                 <span style={{ fontSize: 14 }} className="text-gray-500">
                   Số lượng:
                 </span>
@@ -409,37 +413,16 @@ export default function ProductActions({ item, discountPercent }: Props) {
               </div>
             )}
 
+            {/* base: 14px — delivery info */}
             <div className="flex items-center gap-2">
               <IconTruck size={15} className="text-gray-400 shrink-0" />
-              <p style={{ fontSize: 14 }} className="text-gray-500">
+              <p style={{ fontSize: 18 }} className="text-gray-500">
                 Dự kiến giao hàng:{" "}
                 <span className="font-semibold text-gray-700">
                   16-03-2026 — 22-03-2026
                 </span>
               </p>
             </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 grid grid-cols-2 gap-3">
-            {PERKS.map(({ icon: Icon, label, sub }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5"
-              >
-                <Icon size={18} className="text-orange-500 shrink-0" />
-                <div>
-                  <p
-                    style={{ fontSize: 14 }}
-                    className="font-semibold text-gray-700"
-                  >
-                    {label}
-                  </p>
-                  <p style={{ fontSize: 12 }} className="text-gray-400">
-                    {sub}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -449,6 +432,7 @@ export default function ProductActions({ item, discountPercent }: Props) {
           className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 flex gap-3 z-50"
           style={{ boxShadow: "0 -4px 20px rgba(0,0,0,0.08)" }}
         >
+          {/* base: 14px — button */}
           <button
             onClick={handleAddToCart}
             style={{ fontSize: 14 }}

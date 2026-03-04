@@ -14,16 +14,20 @@ import {
 import ProductActions from "./ProductActions";
 
 /**
- * UI UPDATE (v1)
- * 1) Đồng bộ typography theo scale
- * 2) Tăng spacing giữa breadcrumb (header) và body
- * 3) Ảnh sản phẩm nhỏ hơn (xử lý trong ProductActions)
+ * TYPOGRAPHY SCALE (đồng bộ toàn trang)
+ * ─────────────────────────────────────────────
+ * xs   : 11px — micro label (NGƯỜI BÁN, uppercase tag)
+ * sm   : 12px — caption phụ (sub seller, trust badge sub)
+ * base : 14px — body, button, link, breadcrumb, spec value, support link
+ * md   : 16px — (dùng nếu cần section label nổi bật)
+ * lg   : 18px — h2 section heading
+ * xl   : 15px — seller name, subhead (giữa base và lg)
  */
 
 const T = {
   h2: { fontSize: 18, fontWeight: 600 as const, color: "#1D1D1F" },
   subhead: { fontSize: 15, fontWeight: 600 as const, color: "#1D1D1F" },
-  body: { fontSize: 14, fontWeight: 400 as const, color: "#3C3C43" },
+  body: { fontSize: 24, fontWeight: 400 as const, color: "#3C3C43" },
   caption: { fontSize: 12, fontWeight: 400 as const, color: "#6E6E73" },
   micro: {
     fontSize: 11,
@@ -117,7 +121,7 @@ export default async function ProductDetail({
       style={{ backgroundColor: "#F5F5F7" }}
     >
       {/* ── Breadcrumb ─────────────────────────────────────── */}
-      <div className=" mx-auto px-5 pt-6 pb-4">
+      <div className="mx-auto px-5 pt-6 pb-4">
         <nav
           aria-label="Breadcrumb"
           className="flex items-center gap-1.5"
@@ -128,28 +132,26 @@ export default async function ProductDetail({
             aria-label="Trang chủ"
             className="hover:text-orange-500 transition-colors flex items-center"
           >
-            <IconHome size={14} />
+            <IconHome size={24} />
           </Link>
 
-          <IconChevronRight size={11} style={{ color: "#AEAEB2" }} />
+          <IconChevronRight size={24} style={{ color: "#AEAEB2" }} />
 
           {item.country && (
             <>
-              <Link
-                href="/"
-                className="hover:text-orange-500 transition-colors"
-                style={T.caption}
-              >
+              {/* base: 14px — breadcrumb link */}
+              <Link href="/" style={{ ...T.body, color: "#6E6E73" }}>
                 {item.country}
               </Link>
-              <IconChevronRight size={11} style={{ color: "#AEAEB2" }} />
+              <IconChevronRight size={24} style={{ color: "#AEAEB2" }} />
             </>
           )}
 
+          {/* base: 14px — current page */}
           <span
             aria-current="page"
             className="line-clamp-1 max-w-[520px]"
-            style={{ ...T.caption, color: "#3C3C43", fontWeight: 500 }}
+            style={{ ...T.body, color: "#3C3C43", fontWeight: 500 }}
           >
             {item.name}
           </span>
@@ -177,6 +179,7 @@ export default async function ProductDetail({
                 style={{ color: "#22C55E", flexShrink: 0 }}
               />
               <div>
+                {/* base: 14px — trust label */}
                 <p
                   style={{
                     fontSize: 14,
@@ -187,6 +190,7 @@ export default async function ProductDetail({
                 >
                   {label}
                 </p>
+                {/* sm: 12px — trust sub */}
                 <p style={{ fontSize: 12, color: "#6E6E73", marginTop: 2 }}>
                   {sub}
                 </p>
@@ -209,9 +213,11 @@ export default async function ProductDetail({
                 }}
                 aria-labelledby="desc-heading"
               >
+                {/* lg: 18px — section heading */}
                 <h2 id="desc-heading" style={{ ...T.h2, marginBottom: 14 }}>
                   Mô tả sản phẩm
                 </h2>
+                {/* base: 14px — body text */}
                 <p
                   className="leading-relaxed"
                   style={{
@@ -235,6 +241,7 @@ export default async function ProductDetail({
               }}
               aria-labelledby="benefits-heading"
             >
+              {/* lg: 18px — section heading */}
               <h2 id="benefits-heading" style={{ ...T.h2, marginBottom: 14 }}>
                 Quyền lợi khi mua hàng
               </h2>
@@ -253,6 +260,7 @@ export default async function ProductDetail({
                     }}
                   >
                     <Icon size={16} className={`${color} mt-0.5 shrink-0`} />
+                    {/* base: 14px — benefit text */}
                     <span style={{ ...T.body, lineHeight: 1.6 }}>{text}</span>
                   </li>
                 ))}
@@ -268,6 +276,7 @@ export default async function ProductDetail({
               }}
               aria-labelledby="specs-heading"
             >
+              {/* lg: 18px — section heading */}
               <h2 id="specs-heading" style={{ ...T.h2, marginBottom: 14 }}>
                 Thông số kỹ thuật
               </h2>
@@ -282,6 +291,7 @@ export default async function ProductDetail({
                         borderBottom: "1px solid #F2F2F7",
                       }}
                     >
+                      {/* sm: 12px — spec label (intentional de-emphasis) */}
                       <td
                         className="rounded-l-lg"
                         style={{
@@ -294,6 +304,7 @@ export default async function ProductDetail({
                       >
                         {label}
                       </td>
+                      {/* base: 14px — spec value */}
                       <td
                         className="rounded-r-lg"
                         style={{
@@ -322,10 +333,13 @@ export default async function ProductDetail({
                 border: "1px solid #E8E8ED",
               }}
             >
+              {/* xs: 11px — micro uppercase label */}
               <p style={{ ...T.micro, marginBottom: 6 }}>Người bán</p>
+              {/* 15px — seller name (subhead) */}
               <p style={{ fontSize: 15, fontWeight: 600, color: "#1D1D1F" }}>
                 EmcomerFado Inc
               </p>
+              {/* sm: 12px — seller sub */}
               <p style={{ ...T.caption, marginTop: 2 }}>Đối tác chính thức</p>
             </div>
 
@@ -337,6 +351,7 @@ export default async function ProductDetail({
                 border: "1px solid #E8E8ED",
               }}
             >
+              {/* 15px — subhead */}
               <p style={{ ...T.subhead, marginBottom: 12 }}>Bạn cần hỗ trợ?</p>
 
               <ul className="flex flex-col" style={{ gap: 2 }}>
@@ -346,7 +361,7 @@ export default async function ProductDetail({
                       href="#"
                       className="flex items-center justify-between rounded-lg transition-colors hover:bg-orange-50 hover:text-orange-500"
                       style={{
-                        fontSize: 13,
+                        fontSize: 14, // base: 14px — support link (was 13, now synced)
                         color: "#3C3C43",
                         padding: "8px 10px",
                       }}
@@ -384,9 +399,11 @@ export default async function ProductDetail({
                 style={{ color: "#F97316", flexShrink: 0 }}
               />
               <div>
+                {/* base: 14px — hotline label */}
                 <p style={{ fontSize: 14, fontWeight: 600, color: "#1D1D1F" }}>
                   Hotline hỗ trợ
                 </p>
+                {/* sm: 12px — hotline number/time */}
                 <p
                   style={{
                     fontSize: 12,
